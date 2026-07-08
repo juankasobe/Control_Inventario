@@ -1,0 +1,97 @@
+<section class="bg-white dark:bg-gray-900">
+  <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
+    <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+      Agregar Producto
+    </h2>
+    <form [formGroup]="agregarProductoForm" (ngSubmit)="agregarProducto()">
+      <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div class="sm:col-span-2">
+          <label
+            for="id"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >ID</label
+          >
+          <input
+            formControlName="idN"
+            type="text"
+            name="id"
+            id="id"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Escriba el ID"
+            required=""
+          />
+        </div>
+        <div class="sm:col-span-2">
+          <label
+            for="name"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Nombre del Producto</label
+          >
+          <input
+            formControlName="nombre"
+            type="text"
+            name="nombre"
+            id="nombre"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Escriba el nombre del producto"
+            required=""
+          />
+        </div>
+        <div>
+          <label
+            for="cantidad"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Cantidad</label
+          >
+          <input
+            formControlName="cantidad"
+            type="number"
+            name="cantidad"
+            id="cantidad"
+            class="form-control bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="12"
+            required=""
+          />
+        </div>
+        <div class="sm:col-span-2">
+          <label
+            for="description"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Descripción</label
+          >
+          <textarea
+            id="descripcion"
+            formControlName="descripcion"
+            rows="8"
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Descripción del producto"
+          ></textarea>
+        </div>
+      </div>
+      <button
+        [disabled]="loading()"
+        type="submit"
+        class="focus:outline-none mt-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-lg text-sm px-3 py-2.5 me-2 mb-1 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+      >
+        {{ loading() ? "Cargando..." : "Guardar" }}
+      </button>
+
+      <button
+        *ngIf="mostarBotonBorrar"
+        type="button"
+        [swal]="{
+          title: 'Confirmar',
+          text: '¿Está seguro de eliminar el producto?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Eliminar',
+          cancelButtonText: 'Cancelar'
+        }"
+        (confirm)="eliminarProducto()"
+        class="focus:outline-none mt-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-lg text-sm px-3 py-2.5 me-2 mb-1 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+      >
+        Eliminar
+      </button>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,223 @@
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+  <label for="table-search" class="sr-only">buscar</label>
+  <div class="relative mb-3 mt-1.5">
+    <div
+      class="absolute inset-y-0 left-0 rtl:inset-r-0 rtl:right-0 flex items-center ps-3 pointer-events-none"
+    >
+      <svg
+        class="w-5 h-5 text-gray-500 dark:text-gray-400"
+        aria-hidden="true"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+    </div>
+    <input
+      type="text"
+      id="table-search"
+      class="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      placeholder="Buscar Producto"
+      [(ngModel)]="terminoBusqueda"
+    />
+  </div>
+  <table
+    class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+  >
+    <thead
+      class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+    >
+      <tr>
+        <th scope="col" class="px-6 py-3">ID</th>
+        <th scope="col" class="px-6 py-3">Nombre</th>
+        <th scope="col" class="px-6 py-3">Cantidad</th>
+        <th scope="col" class="px-6 py-3">Descripción</th>
+        <td scope="col" class="px-6 py-3"></td>
+        <td scope="col" class="px-6 py-3"></td>
+        <td scope="col" class="px-6 py-3"></td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of productosFiltrados">
+        <th
+          scope="row"
+          class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+        >
+          {{ item.id }}
+        </th>
+        <td class="px-6 py-4">{{ item.nombre }}</td>
+        <td class="px-6 py-4">{{ item.cantidad }}</td>
+        <td class="px-6 py-4">{{ item.descripcion }}</td>
+        <button
+          (click)="seleccionarProducto(item)"
+          class="focus:outline-none mt-3 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-lg text-xs px-2 py-1 me-1 mb-1 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+        >
+          Seleccionar
+        </button>
+        <td class="px-6 py-4">
+          <a [routerLink]="['./editar/', item.id]">
+            <svg
+              class="w-6 h-6 text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+              />
+            </svg>
+          </a>
+        </td>
+        <td class="px-6 py-4">
+          <a [routerLink]="['./movimientos/', item.id]">
+            <svg
+              class="w-6 h-6 text-gray-800 dark:text-white"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke="currentColor"
+                stroke-width="2"
+                d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+              />
+              <path
+                stroke="currentColor"
+                stroke-width="2"
+                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+              />
+            </svg>
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div
+  class="flex justify-between items-center mt-4 px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md"
+>
+  <button
+    (click)="cambiarPagina(paginaActual - 1)"
+    [disabled]="paginaActual === 1"
+    class="px-4 py-2 bg-gray-700 text-white font-medium rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    ⬅️ Anterior
+  </button>
+
+  <span class="text-gray-700 dark:text-gray-300 font-medium">
+    Página {{ paginaActual }} de {{ totalPaginas }}
+  </span>
+
+  <button
+    (click)="cambiarPagina(paginaActual + 1)"
+    [disabled]="paginaActual === totalPaginas"
+    class="px-4 py-2 bg-gray-700 text-white font-small rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Siguiente ➡️
+  </button>
+</div>
+
+<div
+  class="relative overflow-x-auto shadow-md sm:rounded-lg"
+  *ngIf="productoSeleccionado"
+>
+  <p
+    class="p-3 text-sm rounded-t-lg block mt-3 font-semibold text-center rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"
+  >
+    Producto Seleccionado
+  </p>
+  <table
+    class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+  >
+    <thead
+      class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+    >
+      <tr>
+        <th scope="col" class="px-3 py-3">Número Factura</th>
+        <th scope="col" class="px-3 py-3">Nombre</th>
+        <th scope="col" class="px-3 py-3">Cantidad</th>
+        <th scope="col" class="px-3 py-3">Fecha</th>
+        <th scope="col" class="px-3 py-3">Descripción</th>
+        <th scope="col" class="px-3 py-3">Detalle</th>
+        <th scope="col" class="px-1 py-3"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td scope="row" class="px-3 py-4">
+          <input
+            [(ngModel)]="numeroFactura"
+            type="string"
+            id="numeroFactura"
+            class="bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-1 py-1 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Número de Factura"
+            required
+          />
+        </td>
+        <td class="px-3 py-4">{{ productoSeleccionado.nombre }}</td>
+        <td class="px-3 py-4">
+          <input
+            [(ngModel)]="cantidadModificar"
+            type="number"
+            id="first_product"
+            class="bg-gray-50 w-14 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2.5 py-1 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Cantidad a modificar"
+            title="Ingrese la cantidad a modificar"
+            required
+          />
+        </td>
+        <td class="px-3 py-4">
+          <input
+            [(ngModel)]="fecha"
+            type="date"
+            id="fechaProducto"
+            class="bg-gray-50 w-36 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-2.5 py-1 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="YYYY-MM-DD"
+            required
+          />
+        </td>
+        <td class="px-3 py-4">{{ productoSeleccionado.descripcion }}</td>
+        <td class="pl-3 pr-3 py-4 align-top">
+          <textarea
+            [(ngModel)]="detalleDescripcion"
+            id="detalleDescripcion"
+            class="bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-56 h-20 px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Detalle de la operación"
+            required
+          ></textarea>
+        </td>
+        <td class="px-1 py-4 text-right">
+          <div class="flex flex-col items-end space-y-2 pr-9">
+            <button
+              (click)="aumentarStock()"
+              class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-sm text-sm w-28 h-8 px-3 py-2.5 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 flex items-center justify-center"
+            >
+              Compra/dev
+            </button>
+            <button
+              (click)="disminuirStock()"
+              class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-sm text-sm w-28 h-8 px-3 py-2.5 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 flex items-center justify-center"
+            >
+              Venta/dev
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

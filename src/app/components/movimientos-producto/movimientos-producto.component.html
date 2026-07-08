@@ -1,0 +1,84 @@
+<section class="bg-white dark:bg-gray-900 mb-8">
+  <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Producto</h2>
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table
+      class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+    >
+      <thead
+        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-6 py-3">ID</th>
+          <th scope="col" class="px-6 py-3">Nombre</th>
+          <th scope="col" class="px-6 py-3">Cantidad</th>
+          <th scope="col" class="px-6 py-3">Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
+        >
+          <td class="px-6 py-4">{{ id() }}</td>
+          <td class="px-6 py-4">{{ producto?.nombre }}</td>
+          <td class="px-6 py-4">{{ producto?.cantidad }}</td>
+          <td class="px-6 py-4">{{ producto?.descripcion }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Detalles</h2>
+<div class="relative overflow-x-auto">
+  <table
+    class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+  >
+    <thead
+      class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+    >
+      <tr>
+        <th scope="col" class="px-6 py-3">N° Factura</th>
+        <th scope="col" class="px-6 py-3">Fecha</th>
+        <th scope="col" class="px-6 py-3">Tipo</th>
+        <th scope="col" class="px-6 py-3">Descripción</th>
+        <th scope="col" class="px-6 py-3">Stock Anterior</th>
+        <th scope="col" class="px-6 py-3">Stock Nuevo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let cambio of cambiosStockPaginados"
+        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+      >
+        <td class="px-6 py-4">{{ cambio.numeroFactura }}</td>
+        <td class="px-6 py-4">{{ cambio.fecha }}</td>
+        <td class="px-6 py-4">{{ cambio.tipo }}</td>
+        <td class="px-6 py-4">{{ cambio.descripcion || "-" }}</td>
+        <td class="px-6 py-4">{{ cambio.stockAnterior }}</td>
+        <td class="px-6 py-4">{{ cambio.stockNuevo }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div
+  class="flex justify-between items-center mt-4 px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md"
+>
+  <button
+    (click)="cambiarPagina(paginaActual - 1)"
+    [disabled]="paginaActual === 1"
+    class="px-4 py-2 bg-gray-700 text-white font-medium rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    ⬅️ Anterior
+  </button>
+
+  <span class="text-gray-700 dark:text-gray-300 font-medium">
+    Página {{ paginaActual }} de {{ totalPaginas }}
+  </span>
+
+  <button
+    (click)="cambiarPagina(paginaActual + 1)"
+    [disabled]="paginaActual === totalPaginas"
+    class="px-4 py-2 bg-gray-700 text-white font-small rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Siguiente ➡️
+  </button>
+</div>
