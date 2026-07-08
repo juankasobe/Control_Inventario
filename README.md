@@ -1,59 +1,119 @@
-# Inventario
+# Control Inventario
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.5.
+Desktop inventory management app built with Angular, Electron, and Firebase Firestore. It lets users manage products, adjust stock, and review stock movement history with an audit trail.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- Product listing, creation, editing, and deletion.
+- Stock increases and decreases with invoice and description metadata.
+- Firestore-backed movement history per product.
+- Canonical stock movement model with legacy read compatibility.
+- Transactional stock updates so stock quantity and audit records stay consistent.
+- Search and pagination for movement history.
+- Electron desktop packaging through Electron Forge.
 
-```bash
-ng serve
-```
+## Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Area | Tooling |
+| --- | --- |
+| Frontend | Angular 19, TypeScript |
+| Desktop | Electron, Electron Forge |
+| Data | Firebase Firestore, AngularFire |
+| UI | Angular Material, Tailwind CSS, Flowbite, SweetAlert2, ngx-toastr |
+| Tests | Karma, Jasmine, Angular TestBed |
 
-## Code scaffolding
+## Getting Started
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Prerequisites
 
-```bash
-ng generate component component-name
-```
+- Node.js compatible with Angular 19.
+- npm.
+- Firebase project configured for Firestore.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Install dependencies
 
 ```bash
-ng test
+npm install
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### Run tests
 
 ```bash
-ng e2e
+npm test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### Run the Angular build
 
-## Additional Resources
+```bash
+npm run build
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Start the Electron app
+
+```bash
+npm start
+```
+
+## Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm start` | Starts the Electron Forge app. |
+| `npm run electron` | Runs Electron directly with `main.js`. |
+| `npm run electron-build` | Builds Angular and launches Electron. |
+| `npm run build` | Builds the Angular app. |
+| `npm run watch` | Builds Angular in watch mode. |
+| `npm test` | Runs Angular/Karma tests once. |
+| `npm run package` | Packages the desktop app with Electron Forge. |
+| `npm run make` | Creates distributable installers/packages. |
+
+## Project Structure
+
+```text
+src/app/
+  components/
+    agregar/                 Product create/edit/delete screen
+    listar/                  Product list and stock adjustment screen
+    movimientos-producto/    Stock movement history screen
+    navbar/                  App navigation
+  interface/                 Product and stock movement contracts
+  service/                   Firestore inventory service
+main.js                      Electron main process
+forge.config.js              Electron Forge configuration
+```
+
+## Data Model
+
+Products are stored in Firestore under `Productos/{productId}`.
+
+Stock movements are stored under:
+
+```text
+Productos/{productId}/cambiosStock/{movementId}
+```
+
+New movement records use these canonical fields:
+
+```ts
+descripcion: string;
+timestamp: unknown;
+tipo: 'entrada' | 'salida';
+```
+
+Legacy documents using `descipcion`, `timeStamp`, `compra`, or `venta` are still read through compatibility mapping.
+
+## Verification
+
+Before publishing or packaging, run:
+
+```bash
+npm test
+npx tsc -p tsconfig.app.json --noEmit
+npm run build
+```
+
+## Notes
+
+- Generated folders such as `node_modules/`, `dist/`, `out/`, `coverage/`, and `.angular/` are ignored.
+- Electron renderer Node integration is disabled in `main.js` while context isolation remains enabled.
+- Firebase web configuration is currently defined in `src/app/app.config.ts`.
