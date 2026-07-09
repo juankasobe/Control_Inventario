@@ -106,12 +106,12 @@
     data-testid="previous-page"
     (click)="cambiarPagina(paginaActual - 1)"
     [disabled]="!puedeIrPaginaAnterior"
-    class="px-4 py-2 bg-gray-700 text-white font-medium rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+    class="px-4 py-2 font-medium rounded-lg disabled:cursor-not-allowed"
   >
     ⬅️ Anterior
   </button>
 
-  <span class="text-gray-700 dark:text-gray-300 font-medium">
+  <span class="pagination-status">
     Página {{ paginaActual }} de {{ totalPaginas }}
   </span>
 
@@ -120,7 +120,7 @@
     data-testid="next-page"
     (click)="cambiarPagina(paginaActual + 1)"
     [disabled]="!puedeIrPaginaSiguiente"
-    class="px-4 py-2 bg-gray-700 text-white font-small rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+    class="px-4 py-2 font-small rounded-lg disabled:cursor-not-allowed"
   >
     Siguiente ➡️
   </button>
