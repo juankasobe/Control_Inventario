@@ -10,3 +10,38 @@ body{
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.empty-state {
+    border-style: dashed;
+    border-radius: 0.9rem;
+    color: #475569;
+    padding: 1.25rem;
+}
+
+.empty-state h3 {
+    color: #111827;
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 0.35rem;
+}
+
+.empty-state p {
+    margin: 0;
+}
+
+.pagination-bar {
+    align-items: center;
+    border-radius: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+}
