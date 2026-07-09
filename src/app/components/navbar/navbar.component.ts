@@ -8,5 +8,9 @@ import { RouterLink } from '@angular/router';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+  menuMovilAbierto = false;
 
+  alternarMenuMovil(): void {
+    this.menuMovilAbierto = !this.menuMovilAbierto;
+  }
 }

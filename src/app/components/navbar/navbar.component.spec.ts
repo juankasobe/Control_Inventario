@@ -22,4 +22,31 @@ describe('NavbarComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('keeps the mobile menu collapsed until the user opens it', () => {
+    const toggle = fixture.nativeElement.querySelector('[data-testid="mobile-menu-toggle"]') as HTMLButtonElement;
+    const menu = fixture.nativeElement.querySelector('[data-testid="mobile-menu"]') as HTMLElement;
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(menu.getAttribute('aria-hidden')).toBe('true');
+
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(menu.getAttribute('aria-hidden')).toBe('false');
+  });
+
+  it('collapses the mobile menu again when the user toggles it closed', () => {
+    const toggle = fixture.nativeElement.querySelector('[data-testid="mobile-menu-toggle"]') as HTMLButtonElement;
+    const menu = fixture.nativeElement.querySelector('[data-testid="mobile-menu"]') as HTMLElement;
+
+    toggle.click();
+    fixture.detectChanges();
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(menu.getAttribute('aria-hidden')).toBe('true');
+  });
 });
