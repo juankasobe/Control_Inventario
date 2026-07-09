@@ -1,97 +1,44 @@
-<section class="bg-white dark:bg-gray-900">
-  <div class="py-8 px-4 mx-auto max-w-2xl lg:py-16">
-    <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-      Agregar Producto
-    </h2>
-    <form [formGroup]="agregarProductoForm" (ngSubmit)="agregarProducto()">
+<section class="product-form-page bg-white dark:bg-gray-900">
+  <div class="product-form-card py-8 px-4 mx-auto max-w-2xl lg:py-16">
+    <header class="form-header">
+      <p class="eyebrow">Inventario</p>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ tituloFormulario }}</h2>
+      <p class="helper-text">{{ textoAyudaFormulario }}</p>
+    </header>
+
+    <p *ngIf="mensajeFormulario()" data-testid="form-status" class="form-status" role="alert">{{ mensajeFormulario() }}</p>
+
+    <form [formGroup]="agregarProductoForm" (ngSubmit)="agregarProducto()" novalidate>
       <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
         <div class="sm:col-span-2">
-          <label
-            for="id"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >ID</label
-          >
-          <input
-            formControlName="idN"
-            type="text"
-            name="id"
-            id="id"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            placeholder="Escriba el ID"
-            required=""
-          />
+          <label for="id" class="field-label">ID</label>
+          <input data-testid="product-id" formControlName="idN" type="text" name="id" id="id" class="field-control" placeholder="Escriba el ID" [attr.aria-invalid]="campoInvalido('idN')" aria-describedby="id-error" />
+          <p *ngIf="campoInvalido('idN')" id="id-error" data-testid="id-error" class="field-error">{{ mensajeErrorCampo('idN') }}</p>
         </div>
+
         <div class="sm:col-span-2">
-          <label
-            for="name"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Nombre del Producto</label
-          >
-          <input
-            formControlName="nombre"
-            type="text"
-            name="nombre"
-            id="nombre"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            placeholder="Escriba el nombre del producto"
-            required=""
-          />
+          <label for="nombre" class="field-label">Nombre del producto</label>
+          <input formControlName="nombre" type="text" name="nombre" id="nombre" class="field-control" placeholder="Escriba el nombre del producto" [attr.aria-invalid]="campoInvalido('nombre')" aria-describedby="name-error" />
+          <p *ngIf="campoInvalido('nombre')" id="name-error" data-testid="name-error" class="field-error">{{ mensajeErrorCampo('nombre') }}</p>
         </div>
+
         <div>
-          <label
-            for="cantidad"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Cantidad</label
-          >
-          <input
-            formControlName="cantidad"
-            type="number"
-            name="cantidad"
-            id="cantidad"
-            class="form-control bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            placeholder="12"
-            required=""
-          />
+          <label for="cantidad" class="field-label">Cantidad</label>
+          <input formControlName="cantidad" type="number" name="cantidad" id="cantidad" class="field-control" placeholder="12" [attr.aria-invalid]="campoInvalido('cantidad')" aria-describedby="quantity-error" />
+          <p *ngIf="campoInvalido('cantidad')" id="quantity-error" data-testid="quantity-error" class="field-error">{{ mensajeErrorCampo('cantidad') }}</p>
         </div>
+
         <div class="sm:col-span-2">
-          <label
-            for="description"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Descripción</label
-          >
-          <textarea
-            id="descripcion"
-            formControlName="descripcion"
-            rows="8"
-            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-            placeholder="Descripción del producto"
-          ></textarea>
+          <label for="descripcion" class="field-label">Descripción</label>
+          <textarea id="descripcion" formControlName="descripcion" rows="8" class="field-control" placeholder="Descripción del producto"></textarea>
         </div>
       </div>
-      <button
-        [disabled]="loading()"
-        type="submit"
-        class="focus:outline-none mt-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-lg text-sm px-3 py-2.5 me-2 mb-1 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-      >
-        {{ loading() ? "Cargando..." : "Guardar" }}
-      </button>
 
-      <button
-        *ngIf="mostarBotonBorrar"
-        type="button"
-        [swal]="{
-          title: 'Confirmar',
-          text: '¿Está seguro de eliminar el producto?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Eliminar',
-          cancelButtonText: 'Cancelar'
-        }"
-        (confirm)="eliminarProducto()"
-        class="focus:outline-none mt-2 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-small rounded-lg text-sm px-3 py-2.5 me-2 mb-1 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-      >
-        Eliminar
-      </button>
+      <div class="form-actions">
+        <button [disabled]="loading()" type="submit" class="primary-action">{{ textoBotonGuardar }}</button>
+
+        <button *ngIf="modoEdicion" data-testid="delete-product" type="button" [disabled]="eliminando()" (click)="eliminarProducto()" class="danger-action">{{ eliminando() ? "Eliminando..." : "Eliminar producto" }}</button>
+      </div>
     </form>
   </div>
 </section>

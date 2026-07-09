@@ -10,11 +10,10 @@ import {
 import { Inventario } from '../../interface/inventario';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
-import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 
 @Component({
   selector: 'app-agregar',
-  imports: [CommonModule, ReactiveFormsModule,SweetAlert2Module],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './agregar.component.html',
   styleUrl: './agregar.component.css',
 })
@@ -22,7 +21,9 @@ export class AgregarComponent {
   agregarProductoForm: FormGroup;
   producto: Inventario | undefined;
   loading = signal(false);
-  mostarBotonBorrar = false;
+  eliminando = signal(false);
+  mensajeFormulario = signal('');
+  submitted = false;
   private toastr: ToastrService = inject(ToastrService);
   id = input.required<string>();
   constructor(
@@ -40,12 +41,65 @@ export class AgregarComponent {
       const id = this.id();
       if (id) {
         this.getProducto(id);
-        this.mostarBotonBorrar = true;
         this.agregarProductoForm.get('idN')?.disable();
       } else {
+        this.producto = undefined;
         this.agregarProductoForm.get('idN')?.enable();
       }
     });
+  }
+
+  get modoEdicion() {
+    return Boolean(this.id());
+  }
+
+  get tituloFormulario() {
+    return this.modoEdicion ? 'Editar producto' : 'Agregar producto';
+  }
+
+  get textoAyudaFormulario() {
+    if (!this.modoEdicion) {
+      return 'Cargá los datos para crear un producto nuevo.';
+    }
+
+    return `Actualizá los datos de ${this.nombreProductoActual}.`;
+  }
+
+  get textoBotonGuardar() {
+    if (this.loading()) {
+      return 'Guardando...';
+    }
+
+    return this.modoEdicion ? 'Guardar cambios' : 'Crear producto';
+  }
+
+  get nombreProductoActual() {
+    return this.agregarProductoForm.get('nombre')?.value || this.producto?.nombre || 'este producto';
+  }
+
+  campoInvalido(nombreCampo: string) {
+    const campo = this.agregarProductoForm.get(nombreCampo);
+    return Boolean(campo?.invalid && (this.submitted || campo.touched));
+  }
+
+  mensajeErrorCampo(nombreCampo: string) {
+    const campo = this.agregarProductoForm.get(nombreCampo);
+
+    if (campo?.hasError('required')) {
+      const mensajes: Record<string, string> = {
+        idN: 'Ingresá un ID',
+        nombre: 'Ingresá el nombre del producto',
+        cantidad: 'Ingresá una cantidad mayor a cero',
+      };
+
+      return mensajes[nombreCampo] || 'Completá este campo';
+    }
+
+    if (campo?.hasError('min')) {
+      return 'Ingresá una cantidad mayor a cero';
+    }
+
+    return '';
   }
 
   async getProducto(id: string) {
@@ -53,6 +107,7 @@ export class AgregarComponent {
     const idProductoSnapShot = await this.inventarioService.getProductoId(id);
     if (!idProductoSnapShot.exists()) return;
     const producto = idProductoSnapShot.data() as Inventario;
+    this.producto = producto;
     this.agregarProductoForm.patchValue({
       idN: id,
       nombre: producto.nombre,
@@ -61,11 +116,16 @@ export class AgregarComponent {
     });
   }
   async agregarProducto() {
+    this.submitted = true;
+    this.mensajeFormulario.set('');
+
     if (this.agregarProductoForm.invalid) {
       this.toastr.error('Formulario invalido');
-      console.log('Formulario invalido');
       return;
     }
+
+    const id = this.id();
+
     try {
       this.loading.set(true);
       const idNuevo = this.agregarProductoForm.get('idN')?.value;
@@ -74,21 +134,25 @@ export class AgregarComponent {
         cantidad: this.agregarProductoForm.get('cantidad')?.value,
         descripcion: this.agregarProductoForm.get('descripcion')?.value,
       };
-      const id = this.id();
       if (id) {
         await this.inventarioService.updateProducto(producto, id);
         this.router.navigate(['/']);
       } else {
         await this.inventarioService.createProducto(producto, idNuevo);
-        console.log('Producto agregado:', producto);
         this.agregarProductoForm.reset();
+        this.submitted = false;
       }
       this.toastr.success(
         `Producto ${id ? 'Actualizado' : 'Creado'} correctamente`
       );
     } catch (error) {
-      this.toastr.success('Producto No agregado');
-      console.error('Error al agregar el producto:', error);
+      const accion = id ? 'actualizar' : 'crear';
+      this.mostrarFalloOperacion(
+        `No pudimos ${accion} el producto. Revisá los datos e intentá nuevamente.`,
+        `No pudimos ${accion} el producto`,
+        'Error al agregar el producto:',
+        error
+      );
     } finally {
       this.loading.set(false);
     }
@@ -97,12 +161,41 @@ export class AgregarComponent {
   async eliminarProducto() {
     const id = this.id();
     if (id) {
-      this.inventarioService.deleteProducto(id);
-      this.toastr.success('Producto eliminado correctamente');
-      this.router.navigate(['/']);
-      console.log('Producto eliminado.');
+      try {
+        this.mensajeFormulario.set('');
+        this.eliminando.set(true);
+        await this.inventarioService.deleteProducto(id);
+        this.toastr.success('Producto eliminado correctamente');
+        this.router.navigate(['/']);
+      } catch (error) {
+        this.mostrarFalloOperacion(
+          `No pudimos eliminar ${this.nombreProductoActual}. El producto sigue disponible.`,
+          'No pudimos eliminar el producto',
+          'Error al eliminar el producto:',
+          error
+        );
+      } finally {
+        this.eliminando.set(false);
+      }
     } else {
-      this.toastr.error('No se pudo eliminar el producto');
+      this.mostrarFalloOperacion(
+        'No se pudo eliminar el producto porque falta el ID.',
+        'No se pudo eliminar el producto'
+      );
+    }
+  }
+
+  private mostrarFalloOperacion(
+    mensajeFormulario: string,
+    mensajeToast: string,
+    etiquetaLog?: string,
+    error?: unknown
+  ) {
+    this.mensajeFormulario.set(mensajeFormulario);
+    this.toastr.error(mensajeToast);
+
+    if (etiquetaLog) {
+      console.error(etiquetaLog, error);
     }
   }
 }

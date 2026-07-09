@@ -1,0 +1,45 @@
+.product-form-page { min-height: 100%; }
+.product-form-card { display: grid; gap: 1.5rem; }
+.form-header { display: grid; gap: 0.35rem; }
+
+.eyebrow {
+  color: #047857;
+}
+
+.helper-text { color: #4b5563; margin: 0; }
+.field-label { color: #111827; display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; }
+
+.field-control {
+  background: #f9fafb; border: 1px solid #d1d5db; border-radius: 0.5rem;
+  color: #111827; display: block; font-size: 0.875rem; padding: 0.625rem; width: 100%;
+}
+
+.field-control:focus { border-color: #059669; outline: 2px solid rgb(5 150 105 / 20%); }
+.field-control[aria-invalid='true'] { border-color: #dc2626; }
+.field-error { color: #b91c1c; font-size: 0.875rem; margin: 0.35rem 0 0; }
+
+.form-status {
+  background: #fef2f2; border: 1px solid #fecaca; border-radius: 0.75rem;
+  color: #991b1b; margin: 0; padding: 0.85rem 1rem;
+}
+
+.form-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+
+.primary-action,
+.danger-action {
+  border: 0; border-radius: 0.5rem; color: #fff; cursor: pointer;
+  font-size: 0.875rem; font-weight: 600; padding: 0.65rem 0.9rem;
+}
+
+.primary-action { background: #047857; }
+.primary-action:hover:not(:disabled) { background: #065f46; }
+.danger-action { background: #b91c1c; }
+.danger-action:hover:not(:disabled) { background: #991b1b; }
+.primary-action:disabled,
+.danger-action:disabled { cursor: not-allowed; opacity: 0.65; }
+
+@media (prefers-color-scheme: dark) {
+  .field-label { color: #fff; }
+  .helper-text { color: #d1d5db; }
+  .field-control { background: #374151; border-color: #4b5563; color: #fff; }
+}
