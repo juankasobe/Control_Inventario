@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { MovimientosProductoComponent } from './movimientos-producto.component';
@@ -22,6 +23,7 @@ describe('MovimientosProductoComponent', () => {
           },
         },
         { provide: ToastrService, useValue: { error: jasmine.createSpy('error') } },
+        provideRouter([]),
       ],
     })
     .compileComponents();
@@ -64,8 +66,6 @@ describe('MovimientosProductoComponent', () => {
       movement({ numeroFactura: 'skip-1', descripcion: 'other' }),
     ];
 
-    void component.cambiosStockPaginados;
-
     expect(component.totalPaginas).toBe(2);
   });
 
@@ -88,6 +88,73 @@ describe('MovimientosProductoComponent', () => {
     ];
 
     expect(component.cambiosStockPaginados[0].descripcion).toBe('canonical description');
+  });
+
+  it('resets search to the first page and shows only matching movements', () => {
+    component.productosPorPagina = 2;
+    component.paginaActual = 2;
+    component.cambiosStock = [
+      movement({ numeroFactura: 'FAC-100', descripcion: 'Compra inicial' }),
+      movement({ numeroFactura: 'FAC-200', descripcion: 'Venta mostrador' }),
+      movement({ numeroFactura: 'FAC-300', descripcion: 'Compra secundaria' }),
+    ];
+
+    component.cambiarBusqueda('compra');
+
+    expect(component.paginaActual).toBe(1);
+    expect(component.cambiosStockPaginados.map((item) => item.numeroFactura)).toEqual([
+      'FAC-100',
+      'FAC-300',
+    ]);
+  });
+
+  it('uses a valid page for filtered pagination without mutating current page in the getter', () => {
+    component.productosPorPagina = 1;
+    component.paginaActual = 3;
+    component.cambiosStock = [
+      movement({ numeroFactura: 'FAC-100', descripcion: 'Compra inicial' }),
+      movement({ numeroFactura: 'FAC-200', descripcion: 'Venta mostrador' }),
+      movement({ numeroFactura: 'FAC-300', descripcion: 'Compra secundaria' }),
+    ];
+
+    component.terminoBusqueda = 'compra';
+
+    expect(component.cambiosStockPaginados.map((item) => item.numeroFactura)).toEqual(['FAC-300']);
+    expect(component.totalPaginas).toBe(2);
+    expect(component.paginaActual).toBe(3);
+  });
+
+  it('renders a filtered empty state that preserves the search context', () => {
+    component.terminoBusqueda = 'sin coincidencias';
+    component.cambiosStock = [
+      movement({ numeroFactura: 'FAC-100', descripcion: 'Compra inicial' }),
+    ];
+    fixture.detectChanges();
+
+    const emptyState = fixture.nativeElement.querySelector('[data-testid="movements-filtered-empty"]');
+
+    expect(emptyState?.textContent).toContain('No encontramos movimientos para "sin coincidencias"');
+  });
+
+  it('renders distinguishable badges for entrada and salida movements', () => {
+    component.cambiosStock = [
+      movement({ tipo: 'entrada', numeroFactura: 'FAC-100', descripcion: 'Compra inicial' }),
+      movement({ tipo: 'salida', numeroFactura: 'FAC-200', descripcion: 'Venta mostrador' }),
+    ];
+    fixture.detectChanges();
+
+    const badges = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('[data-testid="movement-type-badge"]'));
+
+    expect(badges.map((badge) => badge.textContent?.trim())).toEqual(['Entrada', 'Salida']);
+  });
+
+  it('renders a return affordance back to the product list workflow', () => {
+    fixture.detectChanges();
+
+    const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('[data-testid="back-to-products"]');
+
+    expect(link?.textContent).toContain('Volver al listado');
+    expect(link?.getAttribute('href')).toBe('/');
   });
 });
 

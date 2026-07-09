@@ -1,84 +1,78 @@
-<section class="bg-white dark:bg-gray-900 mb-8">
-  <h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Producto</h2>
-  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-    <table
-      class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-    >
-      <thead
-        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-      >
+<section class="movement-history">
+  <a data-testid="back-to-products" routerLink="/" class="back-link">← Volver al listado</a>
+
+  <header class="history-header">
+    <div>
+      <p class="eyebrow">Historial de movimientos</p>
+      <h1>{{ producto?.nombre || 'Producto' }}</h1>
+      <p class="history-summary">
+        Stock actual: <strong>{{ producto?.cantidad ?? '-' }}</strong>
+        <span *ngIf="producto?.descripcion"> · {{ producto?.descripcion }}</span>
+      </p>
+    </div>
+    <div class="product-id">ID: {{ id() }}</div>
+  </header>
+
+  <label class="search-label" for="movement-search">Buscar movimientos</label>
+  <input
+    id="movement-search"
+    type="search"
+    class="search-input"
+    placeholder="Buscar por factura, descripción, tipo o fecha"
+    [ngModel]="terminoBusqueda"
+    (ngModelChange)="cambiarBusqueda($event)"
+  />
+
+  <div *ngIf="sinMovimientos" class="empty-state" data-testid="movements-empty">
+    Todavía no hay movimientos registrados para este producto.
+  </div>
+
+  <div *ngIf="hayBusquedaSinResultados" class="empty-state" data-testid="movements-filtered-empty">
+    No encontramos movimientos para "{{ terminoBusqueda }}". Probá con otra factura, descripción o fecha.
+  </div>
+
+  <div *ngIf="!sinMovimientos && !hayBusquedaSinResultados" class="movement-table-wrapper">
+    <table class="movement-table">
+      <thead>
         <tr>
-          <th scope="col" class="px-6 py-3">ID</th>
-          <th scope="col" class="px-6 py-3">Nombre</th>
-          <th scope="col" class="px-6 py-3">Cantidad</th>
-          <th scope="col" class="px-6 py-3">Descripción</th>
+          <th scope="col">N° Factura</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Descripción</th>
+          <th scope="col">Stock Anterior</th>
+          <th scope="col">Stock Nuevo</th>
         </tr>
       </thead>
       <tbody>
-        <tr
-          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
-        >
-          <td class="px-6 py-4">{{ id() }}</td>
-          <td class="px-6 py-4">{{ producto?.nombre }}</td>
-          <td class="px-6 py-4">{{ producto?.cantidad }}</td>
-          <td class="px-6 py-4">{{ producto?.descripcion }}</td>
+        <tr *ngFor="let cambio of cambiosStockPaginados">
+          <td>{{ cambio.numeroFactura }}</td>
+          <td>{{ cambio.fecha }}</td>
+          <td>
+            <span
+              data-testid="movement-type-badge"
+              class="movement-badge"
+              [ngClass]="cambio.tipo.toLowerCase() === 'entrada' ? 'movement-badge--entrada' : 'movement-badge--salida'"
+            >
+              {{ tipoMovimientoEtiqueta(cambio.tipo) }}
+            </span>
+          </td>
+          <td>{{ cambio.descripcion || '-' }}</td>
+          <td>{{ cambio.stockAnterior }}</td>
+          <td>{{ cambio.stockNuevo }}</td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <div class="pagination-bar">
+    <button (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1">
+      ⬅️ Anterior
+    </button>
+
+    <span>Página {{ totalPaginas === 0 ? 0 : paginaActual }} de {{ totalPaginas }}</span>
+
+    <button (click)="cambiarPagina(paginaActual + 1)" [disabled]="totalPaginas === 0 || paginaActual === totalPaginas">
+      Siguiente ➡️
+    </button>
+  </div>
 </section>
-<h2 class="mb-4 text-xl font-bold text-gray-900 dark:text-white">Detalles</h2>
-<div class="relative overflow-x-auto">
-  <table
-    class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-  >
-    <thead
-      class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-    >
-      <tr>
-        <th scope="col" class="px-6 py-3">N° Factura</th>
-        <th scope="col" class="px-6 py-3">Fecha</th>
-        <th scope="col" class="px-6 py-3">Tipo</th>
-        <th scope="col" class="px-6 py-3">Descripción</th>
-        <th scope="col" class="px-6 py-3">Stock Anterior</th>
-        <th scope="col" class="px-6 py-3">Stock Nuevo</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        *ngFor="let cambio of cambiosStockPaginados"
-        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
-      >
-        <td class="px-6 py-4">{{ cambio.numeroFactura }}</td>
-        <td class="px-6 py-4">{{ cambio.fecha }}</td>
-        <td class="px-6 py-4">{{ cambio.tipo }}</td>
-        <td class="px-6 py-4">{{ cambio.descripcion || "-" }}</td>
-        <td class="px-6 py-4">{{ cambio.stockAnterior }}</td>
-        <td class="px-6 py-4">{{ cambio.stockNuevo }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div
-  class="flex justify-between items-center mt-4 px-4 py-2 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md"
->
-  <button
-    (click)="cambiarPagina(paginaActual - 1)"
-    [disabled]="paginaActual === 1"
-    class="px-4 py-2 bg-gray-700 text-white font-medium rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    ⬅️ Anterior
-  </button>
-
-  <span class="text-gray-700 dark:text-gray-300 font-medium">
-    Página {{ paginaActual }} de {{ totalPaginas }}
-  </span>
-
-  <button
-    (click)="cambiarPagina(paginaActual + 1)"
-    [disabled]="paginaActual === totalPaginas"
-    class="px-4 py-2 bg-gray-700 text-white font-small rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    Siguiente ➡️
-  </button>
-</div>

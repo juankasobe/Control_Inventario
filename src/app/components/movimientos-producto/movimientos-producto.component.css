@@ -1,0 +1,150 @@
+.movement-history {
+  display: grid;
+  gap: 1.25rem;
+  color: #111827;
+}
+
+.back-link {
+  width: fit-content;
+  color: #1d4ed8;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.history-header h1 {
+  margin: 0.25rem 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.eyebrow,
+.history-summary,
+.product-id {
+  margin: 0;
+  color: #4b5563;
+}
+
+.eyebrow {
+  font-weight: 800;
+}
+
+.product-id {
+  align-self: start;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.search-label {
+  font-weight: 700;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  background: #ffffff;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  border: 1px dashed #9ca3af;
+  background: #f9fafb;
+  color: #374151;
+  text-align: center;
+}
+
+.movement-table-wrapper {
+  overflow-x: auto;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.movement-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.movement-table th,
+.movement-table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.movement-table th {
+  background: #f9fafb;
+  color: #374151;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.movement-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.movement-badge--entrada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.movement-badge--salida {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.pagination-bar {
+  gap: 1rem;
+  background: #f9fafb;
+  font-weight: 700;
+}
+
+.pagination-bar button {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: #374151;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.pagination-bar button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .history-header,
+  .pagination-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -5,17 +5,17 @@ import { MovimientoStock } from '../../interface/movimientoStock';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-movimientos-producto',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './movimientos-producto.component.html',
   styleUrl: './movimientos-producto.component.css',
 })
 export class MovimientosProductoComponent {
   producto: Inventario | undefined;
   cambiosStock: MovimientoStock[] = [];
-  totalPaginas: number = 1;
   productosPorPagina: number = 10;
   paginaActual: number = 1;
   terminoBusqueda: string = '';
@@ -26,7 +26,7 @@ export class MovimientosProductoComponent {
     effect(() => {
       const id = this.id();
       if (id) {
-        this.getCambiosStock(id); // Reemplazar con el ID del producto deseado
+        this.getCambiosStock(id);
         this.getProducto(id);
       }
     });
@@ -37,36 +37,41 @@ export class MovimientosProductoComponent {
     (await this._inventarioService.getCambiosStockDeProductoOrdenados(id)).subscribe({
       next: (data) => {
         this.cambiosStock = data;
-        this.updateTotalPaginas(this.cambiosStockFiltrados.length);
-        console.log('Cambios de stock:', this.cambiosStock);
+        this.ajustarPaginaPorTotalMovimientos(this.cambiosStockFiltrados.length);
       },
-      error: (err) => {
+      error: () => {
         this.toastr.error('Error al obtener los productos');
-        console.error(err);
       },
     });
   }
 
   get cambiosStockFiltrados(): MovimientoStock[] {
-    const termino = this.terminoBusqueda.toLowerCase();
+    const termino = this.terminoBusqueda.trim().toLowerCase();
+
+    if (!termino) return this.cambiosStock;
 
     return this.cambiosStock.filter(
       (movimiento) =>
         movimiento.numeroFactura.toLowerCase().includes(termino) ||
-        movimiento.descripcion.toLowerCase().includes(termino)
+        movimiento.descripcion.toLowerCase().includes(termino) ||
+        movimiento.tipo.toLowerCase().includes(termino) ||
+        movimiento.fecha.toLowerCase().includes(termino)
     );
   }
 
   get cambiosStockPaginados(): MovimientoStock[] {
     const cambiosStockFiltrados = this.cambiosStockFiltrados;
-    this.updateTotalPaginas(cambiosStockFiltrados.length);
-
-    const inicio = (this.paginaActual - 1) * this.productosPorPagina;
+    const pagina = this.paginaValida(this.paginaActual, this.totalPaginas);
+    const inicio = (pagina - 1) * this.productosPorPagina;
     return cambiosStockFiltrados.slice(inicio, inicio + this.productosPorPagina);
   }
 
-  private updateTotalPaginas(totalMovimientos: number) {
-    this.totalPaginas = Math.ceil(totalMovimientos / this.productosPorPagina);
+  get totalPaginas(): number {
+    return this.calcularTotalPaginas(this.cambiosStockFiltrados.length);
+  }
+
+  private ajustarPaginaPorTotalMovimientos(totalMovimientos: number) {
+    this.ajustarPaginaActual(this.calcularTotalPaginas(totalMovimientos));
   }
 
   cambiarPagina(pagina: number) {
@@ -74,11 +79,53 @@ export class MovimientosProductoComponent {
       this.paginaActual = pagina;
     }
   }
+
+  cambiarBusqueda(termino: string) {
+    this.terminoBusqueda = termino;
+    this.paginaActual = 1;
+    this.ajustarPaginaPorTotalMovimientos(this.cambiosStockFiltrados.length);
+  }
+
+  get hayMovimientos(): boolean {
+    return this.cambiosStock.length > 0;
+  }
+
+  get hayBusquedaSinResultados(): boolean {
+    return this.hayMovimientos && this.terminoBusqueda.trim().length > 0 && this.cambiosStockFiltrados.length === 0;
+  }
+
+  get sinMovimientos(): boolean {
+    return !this.hayMovimientos;
+  }
+
+  tipoMovimientoEtiqueta(tipo: string): string {
+    return tipo.toLowerCase() === 'entrada' ? 'Entrada' : 'Salida';
+  }
+
+  private calcularTotalPaginas(totalMovimientos: number): number {
+    return Math.ceil(totalMovimientos / this.productosPorPagina);
+  }
+
+  private paginaValida(pagina: number, totalPaginas: number): number {
+    if (pagina < 1) {
+      return 1;
+    }
+
+    if (totalPaginas > 0 && pagina > totalPaginas) {
+      return totalPaginas;
+    }
+
+    return pagina;
+  }
+
+  private ajustarPaginaActual(totalPaginas: number) {
+    this.paginaActual = this.paginaValida(this.paginaActual, totalPaginas);
+  }
+
   async getProducto(id: string) {
     const idProductoSnapShot = await this._inventarioService.getProductoId(id);
     if (!idProductoSnapShot.exists()) return;
     const producto = idProductoSnapShot.data() as Inventario;
-    this.producto = producto; // Asigna el producto para mostrarlo en el HTML
-    console.log('Producto:', producto);
+    this.producto = producto;
   }
 }
