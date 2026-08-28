@@ -23,6 +23,17 @@
   color: #991b1b; margin: 0; padding: 0.85rem 1rem;
 }
 
+.resolution-state {
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 0.75rem;
+  color: #166534; display: grid; gap: 0.4rem; padding: 1rem;
+}
+
+.resolution-state h3,
+.resolution-state p { margin: 0; }
+
+.missing-state { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.back-link { color: #047857; font-weight: 600; text-decoration: underline; }
+
 .form-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
 
 .primary-action,

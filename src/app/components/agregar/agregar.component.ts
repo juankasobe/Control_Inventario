@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, input, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { InventarioService } from '../../service/inventario.service';
 import {
   FormBuilder,
@@ -9,11 +10,12 @@ import {
 } from '@angular/forms';
 import { Inventario } from '../../interface/inventario';
 import { ToastrService } from 'ngx-toastr';
-import { Router } from '@angular/router';
+
+type ProductResolution = 'create' | 'pending' | 'found' | 'missing';
 
 @Component({
   selector: 'app-agregar',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './agregar.component.html',
   styleUrl: './agregar.component.css',
 })
@@ -23,9 +25,10 @@ export class AgregarComponent {
   loading = signal(false);
   eliminando = signal(false);
   mensajeFormulario = signal('');
+  productResolution = signal<ProductResolution>('create');
   submitted = false;
   private toastr: ToastrService = inject(ToastrService);
-  id = input.required<string>();
+  id = input<string>('');
   constructor(
     private formBuilder: FormBuilder,
     private inventarioService: InventarioService,
@@ -40,13 +43,19 @@ export class AgregarComponent {
     effect(() => {
       const id = this.id();
       if (id) {
-        this.getProducto(id);
+        this.productResolution.set('pending');
+        this.resetFormState();
         this.agregarProductoForm.get('idN')?.disable();
+        void this.getProducto(id);
       } else {
-        this.producto = undefined;
-        this.agregarProductoForm.get('idN')?.enable();
+        this.prepareCreateMode();
       }
     });
+  }
+
+  get mostrarFormulario() {
+    const resolution = this.productResolution();
+    return resolution === 'create' || resolution === 'found';
   }
 
   get modoEdicion() {
@@ -103,17 +112,31 @@ export class AgregarComponent {
   }
 
   async getProducto(id: string) {
-    
-    const idProductoSnapShot = await this.inventarioService.getProductoId(id);
-    if (!idProductoSnapShot.exists()) return;
-    const producto = idProductoSnapShot.data() as Inventario;
-    this.producto = producto;
-    this.agregarProductoForm.patchValue({
-      idN: id,
-      nombre: producto.nombre,
-      cantidad: producto.cantidad,
-      descripcion: producto.descripcion,
-    });
+    try {
+      const idProductoSnapShot = await this.inventarioService.getProductoId(id);
+
+      if (this.id() !== id) return;
+
+      if (!idProductoSnapShot.exists()) {
+        this.producto = undefined;
+        this.productResolution.set('missing');
+        return;
+      }
+
+      const producto = idProductoSnapShot.data() as Inventario;
+      this.producto = producto;
+      this.agregarProductoForm.patchValue({
+        idN: id,
+        nombre: producto.nombre,
+        cantidad: producto.cantidad,
+        descripcion: producto.descripcion,
+      });
+      this.productResolution.set('found');
+    } catch (error) {
+      if (this.id() === id) {
+        console.error('Error al obtener el producto:', error);
+      }
+    }
   }
   async agregarProducto() {
     this.submitted = true;
@@ -197,5 +220,17 @@ export class AgregarComponent {
     if (etiquetaLog) {
       console.error(etiquetaLog, error);
     }
+  }
+
+  private prepareCreateMode() {
+    this.resetFormState();
+    this.agregarProductoForm.get('idN')?.enable();
+    this.productResolution.set('create');
+  }
+
+  private resetFormState() {
+    this.producto = undefined;
+    this.agregarProductoForm.reset();
+    this.submitted = false;
   }
 }
