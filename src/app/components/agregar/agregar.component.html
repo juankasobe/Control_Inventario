@@ -8,7 +8,18 @@
 
     <p *ngIf="mensajeFormulario()" data-testid="form-status" class="form-status" role="alert">{{ mensajeFormulario() }}</p>
 
-    <form [formGroup]="agregarProductoForm" (ngSubmit)="agregarProducto()" novalidate>
+    <div *ngIf="productResolution() === 'pending'" data-testid="product-resolution-pending" class="resolution-state" role="status" aria-live="polite">
+      <h3> Cargando producto... </h3>
+      <p>Estamos buscando la información del producto.</p>
+    </div>
+
+    <div *ngIf="productResolution() === 'missing'" data-testid="product-not-found" class="resolution-state missing-state" role="alert">
+      <h3>Producto no encontrado</h3>
+      <p>No encontramos el producto solicitado.</p>
+      <a routerLink="/" data-testid="back-to-products" class="back-link" aria-label="Volver al listado de productos">Volver al listado</a>
+    </div>
+
+    <form *ngIf="mostrarFormulario" [formGroup]="agregarProductoForm" (ngSubmit)="agregarProducto()" novalidate>
       <div class="grid gap-4 sm:grid-cols-2 sm:gap-6">
         <div class="sm:col-span-2">
           <label for="id" class="field-label">ID</label>

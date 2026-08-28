@@ -1,0 +1,80 @@
+schema: spec-driven
+project: control_inventario
+artifact_store:
+  mode: hybrid
+
+context: |
+  Project: Control_Inventario (control_inventario).
+  Tech stack: Angular 19 standalone application with TypeScript 5.7, RxJS, and Angular Router.
+  Desktop runtime: Electron 36 packaged with Electron Forge; Angular static output is loaded by main.js.
+  Data: Firebase Firestore accessed directly from the renderer through AngularFire; stock and audit writes use a transaction.
+  UI: Angular Material, Tailwind CSS 4, Flowbite, SweetAlert2, and ngx-toastr.
+  Architecture: feature-oriented standalone components, thin interfaces, and one service coordinating Firestore persistence.
+  Testing: Karma/Jasmine/Angular TestBed unit coverage; no integration emulator or E2E harness detected.
+  Conventions: 2-space indentation, single-quoted TypeScript, strict TypeScript/Angular templates, Spanish UI copy.
+  Persistence: hybrid OpenSpec files plus Engram project observations.
+
+strict_tdd: true
+
+testing:
+  strict_tdd: true
+  detected: 2026-08-26
+  runner:
+    command: npm test
+    framework: Karma + Jasmine + Angular TestBed
+  layers:
+    unit:
+      available: true
+      tool: Karma + Jasmine + Angular TestBed
+      evidence: 6 src/**/*.spec.ts files
+    integration:
+      available: false
+      tool: null
+      evidence: No Firestore emulator or integration harness detected
+    e2e:
+      available: false
+      tool: null
+      evidence: No Playwright, Cypress, Selenium, or equivalent harness detected
+  coverage:
+    available: true
+    command: npm test -- --code-coverage
+    tool: karma-coverage
+    configured_threshold: 0
+  quality:
+    linter:
+      available: false
+      command: null
+    type_checker:
+      available: true
+      command: npx tsc -p tsconfig.app.json --noEmit
+    formatter:
+      available: false
+      command: null
+
+rules:
+  proposal:
+    - Include a rollback plan for risky changes.
+    - Keep scope aligned with the requested inventory workflow.
+  specs:
+    - Use Given/When/Then scenarios.
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY).
+  design:
+    - Document architecture decisions with rationale.
+    - Include sequence diagrams for complex Firestore or Electron flows.
+  tasks:
+    - Group tasks by phase with hierarchical numbering.
+    - Keep tasks completable in one session.
+  apply:
+    tdd: true
+    test_command: npm test
+    guidelines:
+      - Follow existing standalone Angular component and service patterns.
+      - Preserve transactional consistency between stock and movement audit writes.
+  verify:
+    test_command: npm test
+    typecheck_command: npx tsc -p tsconfig.app.json --noEmit
+    build_command: npm run build
+    coverage_command: npm test -- --code-coverage
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas.

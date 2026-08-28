@@ -1,9 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router, provideRouter } from '@angular/router';
+import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { of } from 'rxjs';
 
 import { AgregarComponent } from './agregar.component';
 import { InventarioService } from '../../service/inventario.service';
 import { ToastrService } from 'ngx-toastr';
+import { routes } from '../../app.routes';
 
 describe('AgregarComponent', () => {
   let component: AgregarComponent;
@@ -11,6 +14,7 @@ describe('AgregarComponent', () => {
   let inventarioService: jasmine.SpyObj<InventarioService>;
   let toastr: jasmine.SpyObj<ToastrService>;
   let router: Router;
+  let harness: RouterTestingHarness;
 
   const existingProduct = {
     nombre: 'Tornillo Allen',
@@ -42,15 +46,30 @@ describe('AgregarComponent', () => {
     return fixture.nativeElement.querySelector(selector);
   }
 
+  async function renderRoute(url: string) {
+    harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(url, AgregarComponent);
+    harness.fixture.detectChanges();
+  }
+
+  function routePageText(): string {
+    return harness.fixture.nativeElement.textContent as string;
+  }
+
+  function routeQuery(selector: string): HTMLElement | null {
+    return harness.fixture.nativeElement.querySelector(selector);
+  }
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AgregarComponent],
       providers: [
-        provideRouter([]),
+        provideRouter(routes, withComponentInputBinding()),
         {
           provide: InventarioService,
           useValue: {
             getProductoId: jasmine.createSpy('getProductoId').and.resolveTo(productSnapshot()),
+            getProductosOrdenados: jasmine.createSpy('getProductosOrdenados').and.returnValue(of([])),
             createProducto: jasmine.createSpy('createProducto').and.resolveTo(undefined),
             updateProducto: jasmine.createSpy('updateProducto').and.resolveTo(undefined),
             deleteProducto: jasmine.createSpy('deleteProducto').and.resolveTo(undefined),
@@ -84,6 +103,74 @@ describe('AgregarComponent', () => {
     expect(pageText()).toContain('Cargá los datos para crear un producto nuevo.');
     expect(pageText()).toContain('Crear producto');
     expect(query('[data-testid="delete-product"]')).toBeNull();
+  });
+
+  it('renders an empty enabled creation form directly at /agregar without reading a product', async () => {
+    inventarioService.getProductoId.calls.reset();
+
+    await renderRoute('/agregar');
+
+    const productId = routeQuery('[data-testid="product-id"]') as HTMLInputElement;
+
+    expect(routePageText()).toContain('Agregar producto');
+    expect(routeQuery('form')).not.toBeNull();
+    expect(productId.value).toBe('');
+    expect(productId.disabled).toBeFalse();
+    expect(routeQuery('[data-testid="product-not-found"]')).toBeNull();
+    expect(inventarioService.getProductoId).not.toHaveBeenCalled();
+    expect(routes.filter((route) => route.component === AgregarComponent).map((route) => route.path)).toEqual([
+      'agregar',
+      'editar/:id',
+    ]);
+  });
+
+  it('keeps the edit form hidden while a product resolution is pending', async () => {
+    const lookup = deferred<ReturnType<typeof productSnapshot>>();
+    inventarioService.getProductoId.and.returnValue(lookup.promise as never);
+
+    await renderRoute('/editar/P-001');
+
+    expect(inventarioService.getProductoId).toHaveBeenCalledOnceWith('P-001');
+    expect(routePageText()).toContain('Cargando producto...');
+    expect(routeQuery('form')).toBeNull();
+    expect(routeQuery('[data-testid="product-not-found"]')).toBeNull();
+
+    lookup.resolve(productSnapshot());
+    await lookup.promise;
+    harness.fixture.detectChanges();
+
+    expect(routePageText()).toContain('Editar producto');
+    expect((routeQuery('[formControlName="nombre"]') as HTMLInputElement).value).toBe('Tornillo Allen');
+    expect((routeQuery('[formControlName="cantidad"]') as HTMLInputElement).value).toBe('12');
+    expect(routeQuery('form')).not.toBeNull();
+  });
+
+  it('hides the form for a missing edit target and returns to the product list', async () => {
+    inventarioService.getProductoId.and.resolveTo({ exists: () => false } as never);
+
+    await renderRoute('/editar/P-404');
+
+    const link = routeQuery('[data-testid="back-to-products"]') as HTMLAnchorElement;
+
+    expect(routePageText()).toContain('No encontramos el producto solicitado.');
+    expect(routeQuery('form')).toBeNull();
+    expect(link).not.toBeNull();
+    expect(link.textContent).toContain('Volver al listado');
+    expect(link.getAttribute('href')).toBe('/');
+
+    link.click();
+    await harness.fixture.whenStable();
+
+    expect(router.url).toBe('/');
+  });
+
+  it('does not represent a rejected product read as a missing product', async () => {
+    inventarioService.getProductoId.and.rejectWith(new Error('network'));
+
+    await renderRoute('/editar/P-500');
+
+    expect(routeQuery('[data-testid="product-resolution-pending"]')).not.toBeNull();
+    expect(routeQuery('[data-testid="product-not-found"]')).toBeNull();
   });
 
   it('shows edit mode copy, loaded context, and a distinct destructive delete action', async () => {
@@ -164,3 +251,12 @@ describe('AgregarComponent', () => {
     await deletePromise;
   });
 });
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+
+  return { promise, resolve };
+}
