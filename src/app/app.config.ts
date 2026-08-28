@@ -3,6 +3,7 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { provideToastr } from 'ngx-toastr';
 import { provideAnimations } from '@angular/platform-browser/animations';
@@ -25,6 +26,7 @@ export const appConfig: ApplicationConfig = {
         messagingSenderId: '624254624987',
       })
     ),
+    provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
   ],
 };

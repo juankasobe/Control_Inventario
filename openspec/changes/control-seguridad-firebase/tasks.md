@@ -29,10 +29,10 @@ Stacked-to-main: PR1 targets current `main`; each next PR branches from and targ
 
 ## Phase 1: Foundation and Firestore Policy
 
-- [ ] 1.1 Add Auth/emulator dependencies, `test:rules`, and config in `package.json`, `package-lock.json`, `firebase.json`, `src/app/app.config.ts`.
-- [ ] 1.2 RED: create `tests/firestore.rules.test.mjs` for all 11: approved; untrusted; record mutation; reinstall; product workflow; movement read/create; alteration; valid/invalid documents; legacy read; policy/credential verification.
-- [ ] 1.3 GREEN: create `firestore.rules` for UID allowlist/default deny, product CRUD/validation/transactions, immutable movements, legacy reads, and unknown paths.
-- [ ] 1.4 REFACTOR: minimize rule reads; pass `R`.
+- [x] 1.1 Add Auth/emulator dependencies, `test:rules`, and config in `package.json`, `package-lock.json`, `firebase.json`, `src/app/app.config.ts`.
+- [x] 1.2 RED: create `tests/firestore.rules.test.mjs` for all 11: approved; untrusted; record mutation; reinstall; product workflow; movement read/create; alteration; valid/invalid documents; legacy read; policy/credential verification.
+- [x] 1.3 GREEN: create `firestore.rules` for UID allowlist/default deny, product CRUD/validation/transactions, immutable movements, legacy reads, and unknown paths.
+- [x] 1.4 REFACTOR: minimize rule reads; pass `R`.
 
 ## Phase 2: Anonymous Identity State
 
