@@ -1,0 +1,79 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function accessRecord(uid) {
+      return /databases/$(database)/documents/deviceAccess/$(uid);
+    }
+
+    function isApprovedRecord(record, uid) {
+      return record.keys().hasOnly(['uid', 'label', 'status'])
+        && record.uid == uid
+        && record.label is string
+        && record.label.size() > 0
+        && record.status == 'approved';
+    }
+
+    function isApproved() {
+      return request.auth != null
+        && isApprovedRecord(get(accessRecord(request.auth.uid)).data, request.auth.uid);
+    }
+
+    function isFiniteNumber(value) {
+      return value is number
+        && value == value
+        && value - value == 0;
+    }
+
+    function validProduct(data, isCreate) {
+      return data.keys().hasOnly(['nombre', 'cantidad', 'descripcion'])
+        && data.nombre is string
+        && data.nombre.size() > 0
+        && isFiniteNumber(data.cantidad)
+        && data.cantidad >= 0
+        && data.descripcion is string
+        && (!isCreate || data.cantidad > 0);
+    }
+
+    function validMovement(data, productId) {
+      return data.keys().hasOnly([
+          'productoId', 'numeroFactura', 'fecha', 'tipo',
+          'stockAnterior', 'stockNuevo', 'descripcion', 'timestamp'
+        ])
+        && data.productoId is string
+        && data.productoId == productId
+        && data.numeroFactura is string
+        && data.fecha is string
+        && data.fecha.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
+        && data.tipo is string
+        && data.tipo in ['entrada', 'salida']
+        && isFiniteNumber(data.stockAnterior)
+        && data.stockAnterior >= 0
+        && isFiniteNumber(data.stockNuevo)
+        && data.stockNuevo >= 0
+        && data.descripcion is string
+        && data.timestamp is timestamp
+        && ((data.tipo == 'entrada' && data.stockNuevo > data.stockAnterior)
+          || (data.tipo == 'salida' && data.stockNuevo < data.stockAnterior));
+    }
+
+    match /deviceAccess/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
+    match /Productos/{productId} {
+      allow read: if isApproved();
+      allow create: if isApproved() && validProduct(request.resource.data, true);
+      allow update: if isApproved() && validProduct(request.resource.data, false);
+      allow delete: if isApproved();
+    }
+
+    match /Productos/{productId}/cambiosStock/{movementId} {
+      allow read: if isApproved();
+      allow create: if isApproved() && validMovement(request.resource.data, productId);
+      allow update, delete: if false;
+    }
+  }
+}
