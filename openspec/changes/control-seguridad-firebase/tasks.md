@@ -36,9 +36,9 @@ Stacked-to-main: PR1 targets current `main`; each next PR branches from and targ
 
 ## Phase 2: Anonymous Identity State
 
-- [ ] 2.1 RED: test `src/app/service/installation-access.service.spec.ts` for first launch, restart, reinstall, pending, revoked, approved, unavailable, manual approval/revocation, self-approval, initial rollout, approval-not-restored, and teardown.
-- [ ] 2.2 GREEN: create `src/app/interface/installation-access.ts` and `src/app/service/installation-access.service.ts` for silent Auth, own-record listening, fail-closed mapping, and teardown.
-- [ ] 2.3 REFACTOR: keep `AccessState` read-only/discriminated; expose no token restoration or self-approval path.
+- [x] 2.1 RED: test `src/app/service/installation-access.service.spec.ts` for first launch, restart, reinstall, pending, revoked, approved, unavailable, manual approval/revocation, self-approval, initial rollout, approval-not-restored, and teardown.
+- [x] 2.2 GREEN: create `src/app/interface/installation-access.ts` and `src/app/service/installation-access.service.ts` for silent Auth, own-record listening, fail-closed mapping, and teardown.
+- [x] 2.3 REFACTOR: keep `AccessState` read-only/discriminated; expose no token restoration or self-approval path.
 
 ## Phase 3: Shell and Approved Identity UI
 
