@@ -108,12 +108,19 @@ Before publishing or packaging, run:
 
 ```bash
 npm test
+npm run test:rules
 npx tsc -p tsconfig.app.json --noEmit
 npm run build
+npm run package
 ```
+
+For the operator sequence, staged rollout, rollback snapshots, and release evidence, see [`docs/firebase-device-access.md`](docs/firebase-device-access.md). Production rules and Firebase Console changes are manual and must never be triggered automatically by the application or build.
 
 ## Notes
 
 - Generated folders such as `node_modules/`, `dist/`, `out/`, `coverage/`, and `.angular/` are ignored.
 - Electron renderer Node integration is disabled in `main.js` while context isolation remains enabled.
 - Firebase web configuration is currently defined in `src/app/app.config.ts`.
+- The Firebase web configuration is client configuration, not an administrator credential. Never add service-account, Admin SDK, signing, private-key, or other privileged secrets to the repository, renderer, bundles, installers, or web storage.
+- Access is installation/profile-scoped and fail-closed: a reinstall or local identity loss creates a new pending UID, and offline or unrestorable authorization does not grant access.
+- Direct quantity edits and product deletion remain known audit/lifecycle limitations; movement history is not updated or cascaded by those operations.
