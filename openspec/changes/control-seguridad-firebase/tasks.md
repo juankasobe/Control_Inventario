@@ -48,9 +48,9 @@ Stacked-to-main: PR1 targets current `main`; each next PR branches from and targ
 
 ## Phase 4: Inventory Compatibility and Teardown
 
-- [ ] 4.1 RED: extend `src/app/components/listar/listar.component.spec.ts` for empty/malformed/nonexistent dates, “Select a valid date” plus toast, skipped adjustment, and local-day preservation; test `src/app/components/movimientos-producto/movimientos-producto.component.spec.ts` destroy teardown.
-- [ ] 4.2 GREEN: modify `src/app/components/listar/listar.component.ts`, `src/app/components/listar/listar.component.html`, `src/app/components/movimientos-producto/movimientos-producto.component.ts` for canonical validation and listener teardown.
-- [ ] 4.3 REFACTOR: preserve transactional adjustment, legacy movement display, and approved routes.
+- [x] 4.1 RED: extend `src/app/components/listar/listar.component.spec.ts` for empty/malformed/nonexistent dates, “Select a valid date” plus toast, skipped adjustment, and local-day preservation; test `src/app/components/movimientos-producto/movimientos-producto.component.spec.ts` destroy teardown.
+- [x] 4.2 GREEN: modify `src/app/components/listar/listar.component.ts`, `src/app/components/listar/listar.component.html`, `src/app/components/movimientos-producto/movimientos-producto.component.ts` for canonical validation and listener teardown.
+- [x] 4.3 REFACTOR: preserve transactional adjustment, legacy movement display, and approved routes.
 
 ## Phase 5: Operations and Verification
 

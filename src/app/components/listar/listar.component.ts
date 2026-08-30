@@ -6,6 +6,8 @@ import { Inventario } from '../../interface/inventario';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+const INVALID_DATE_MESSAGE = 'Select a valid date';
+
 @Component({
   selector: 'app-listar',
   imports: [CommonModule, FormsModule, RouterModule],
@@ -75,6 +77,18 @@ export class ListarComponent {
 
   get puedeEnviarAjuste(): boolean {
     return !!this.productoSeleccionado && !this.cantidadAjusteInvalida && !this.ajusteEnCurso;
+  }
+
+  get fechaAjusteInvalida(): boolean {
+    return this.parseFechaLocal(this.fecha) === null;
+  }
+
+  get mostrarValidacionFecha(): boolean {
+    return this.ajusteIntentado && this.fechaAjusteInvalida;
+  }
+
+  get mensajeValidacionFecha(): string {
+    return this.fechaAjusteInvalida ? INVALID_DATE_MESSAGE : '';
   }
 
   get mensajeValidacionAjuste(): string {
@@ -168,8 +182,16 @@ export class ListarComponent {
       return;
     }
 
+    const fechaAjuste = this.parseFechaLocal(this.fecha);
+    if (!fechaAjuste) {
+      this.mensajeAjuste = INVALID_DATE_MESSAGE;
+      this.tipoMensajeAjuste = 'error';
+      this.toastr.error(INVALID_DATE_MESSAGE);
+      return;
+    }
+
     this.ajusteEnCurso = true;
-    this.detalle = { numeroFactura: this.numeroFactura, fecha: new Date(this.fecha), descripcion : this.detalleDescripcion };
+    this.detalle = { numeroFactura: this.numeroFactura, fecha: fechaAjuste, descripcion : this.detalleDescripcion };
 
     try {
       if (tipo === 'entrada') {
@@ -211,5 +233,29 @@ export class ListarComponent {
     this.tipoMensajeAjuste = '';
   }
 
+  private parseFechaLocal(fecha: string): Date | null {
+    if (typeof fecha !== 'string') {
+      return null;
+    }
+
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fecha);
+    if (!match) {
+      return null;
+    }
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const localDate = new Date(0);
+    localDate.setHours(12, 0, 0, 0);
+    localDate.setFullYear(year, month - 1, day);
+    localDate.setHours(0, 0, 0, 0);
+
+    return localDate.getFullYear() === year &&
+      localDate.getMonth() === month - 1 &&
+      localDate.getDate() === day
+      ? localDate
+      : null;
+  }
 
 }

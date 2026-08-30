@@ -178,6 +178,52 @@ describe('ListarComponent', () => {
     expect(validation.textContent).toContain('Ingresá una cantidad mayor a cero');
   });
 
+  [
+    ['an empty', ''],
+    ['a malformed', '2026-1-15'],
+    ['a nonexistent calendar', '2026-02-30'],
+  ].forEach(([description, date]) => {
+    it(`rejects ${description} date with inline and toast feedback`, async () => {
+      component.seleccionarProducto(productosFixture[0]);
+      component.cantidadModificar = 2;
+      component.fecha = date;
+
+      await component.aumentarStock();
+      fixture.detectChanges();
+
+      expect(inventarioService.agregarStock).not.toHaveBeenCalled();
+      expect(toastr.error).toHaveBeenCalledOnceWith('Select a valid date');
+      expect(fixture.nativeElement.querySelector('[data-testid="date-validation"]')?.textContent)
+        .toContain('Select a valid date');
+    });
+  });
+
+  it('preserves the selected calendar day when creating an adjustment date', async () => {
+    component.seleccionarProducto(productosFixture[0]);
+    component.cantidadModificar = 2;
+    component.fecha = '2026-01-15';
+
+    await component.aumentarStock();
+
+    const detail = inventarioService.agregarStock.calls.mostRecent().args[2] as { fecha: Date };
+    expect(detail.fecha.getFullYear()).toBe(2026);
+    expect(detail.fecha.getMonth()).toBe(0);
+    expect(detail.fecha.getDate()).toBe(15);
+  });
+
+  it('accepts a valid leap day when decreasing stock', async () => {
+    component.seleccionarProducto(productosFixture[0]);
+    component.cantidadModificar = 1;
+    component.fecha = '2024-02-29';
+
+    await component.disminuirStock();
+
+    const detail = inventarioService.disminuirStock.calls.mostRecent().args[2] as { fecha: Date };
+    expect(detail.fecha.getFullYear()).toBe(2024);
+    expect(detail.fecha.getMonth()).toBe(1);
+    expect(detail.fecha.getDate()).toBe(29);
+  });
+
   it('prevents duplicate stock submissions while an adjustment is in progress', async () => {
     let resolveAdjustment!: () => void;
     inventarioService.agregarStock.and.returnValue(

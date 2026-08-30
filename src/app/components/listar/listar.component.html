@@ -193,7 +193,17 @@
         id="fechaProducto"
         class="adjustment-input"
         placeholder="YYYY-MM-DD"
+        [attr.aria-invalid]="mostrarValidacionFecha"
+        aria-describedby="date-validation"
       />
+      <small
+        *ngIf="mostrarValidacionFecha"
+        id="date-validation"
+        data-testid="date-validation"
+        class="field-error"
+      >
+        {{ mensajeValidacionFecha }}
+      </small>
     </label>
 
     <label class="adjustment-detail">
