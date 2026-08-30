@@ -1,0 +1,13 @@
+.access-block {
+  display: grid;
+  gap: 0.75rem;
+  margin: 3rem auto;
+  max-width: 42rem;
+  padding: 2rem;
+}
+
+.access-block h1,
+.access-block p { margin: 0; }
+.access-status { font-weight: 700; }
+.uid-details { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+button { cursor: pointer; padding: 0.5rem 0.75rem; }

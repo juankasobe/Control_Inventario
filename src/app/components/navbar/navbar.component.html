@@ -11,6 +11,21 @@
         >Variedades Zuny</span
       >
     </a>
+    @if (accessState().status === 'approved') {
+      <div data-testid="approved-identity" class="approved-identity" aria-label="Approved installation">
+        <span>{{ accessState().label }}</span>
+        <strong>Approved</strong>
+        @if (uidVisible) {
+          <code data-testid="approved-uid">UID: {{ accessState().uid }}</code>
+          <button data-testid="copy-uid" type="button" (click)="copiarUid()">Copiar UID</button>
+        } @else {
+          <button data-testid="reveal-uid" type="button" (click)="revelarUid()">Ver UID</button>
+        }
+        @if (copyMessage) {
+          <span data-testid="copy-status" role="status">{{ copyMessage }}</span>
+        }
+      </div>
+    }
     <button
       data-testid="mobile-menu-toggle"
       type="button"
