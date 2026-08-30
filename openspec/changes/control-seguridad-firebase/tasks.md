@@ -54,5 +54,5 @@ Stacked-to-main: PR1 targets current `main`; each next PR branches from and targ
 
 ## Phase 5: Operations and Verification
 
-- [ ] 5.1 Create `docs/firebase-device-access.md`; modify `README.md` with limitations/secrets and document-only staged rollout: unverified legacy rules text/hash/date; staging denies inventory, permits own-record reads, denies allowlist writes; collect UIDs; Console audit/cleanup/recreation; final activation; rollback snapshots; no automatic production deployment.
-- [ ] 5.2 Run `F`, `R`, type-check, build, credential inspection, and packaged UID persistence/reinstall; verify Auth→access→gate→rules; record evidence without deploying.
+- [x] 5.1 Create `docs/firebase-device-access.md`; modify `README.md` with limitations/secrets and document-only staged rollout: unverified legacy rules text/hash/date; staging denies inventory, permits own-record reads, denies allowlist writes; collect UIDs; Console audit/cleanup/recreation; final activation; rollback snapshots; no automatic production deployment.
+- [x] 5.2 Run `F`, `R`, type-check, build, credential inspection, and packaged UID persistence/reinstall; verify Auth→access→gate→rules; record evidence without deploying.
