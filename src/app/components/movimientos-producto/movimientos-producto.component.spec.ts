@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { MovimientosProductoComponent } from './movimientos-producto.component';
 import { InventarioService } from '../../service/inventario.service';
@@ -10,15 +10,18 @@ import { MovimientoStock } from '../../interface/movimientoStock';
 describe('MovimientosProductoComponent', () => {
   let component: MovimientosProductoComponent;
   let fixture: ComponentFixture<MovimientosProductoComponent>;
+  let movementStream: Subject<MovimientoStock[]>;
 
   beforeEach(async () => {
+    movementStream = new Subject<MovimientoStock[]>();
+
     await TestBed.configureTestingModule({
       imports: [MovimientosProductoComponent],
       providers: [
         {
           provide: InventarioService,
           useValue: {
-            getCambiosStockDeProductoOrdenados: () => Promise.resolve(of([])),
+            getCambiosStockDeProductoOrdenados: () => Promise.resolve(movementStream.asObservable()),
             getProductoId: () => Promise.resolve({ exists: () => false }),
           },
         },
@@ -155,6 +158,20 @@ describe('MovimientosProductoComponent', () => {
 
     expect(link?.textContent).toContain('Volver al listado');
     expect(link?.getAttribute('href')).toBe('/');
+  });
+
+  it('stops applying movement updates after the component is destroyed', async () => {
+    fixture.componentRef.setInput('id', 'product-1');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    movementStream.next([movement({ numeroFactura: 'before-destroy' })]);
+    expect(component.cambiosStock.map((item) => item.numeroFactura)).toEqual(['before-destroy']);
+
+    fixture.destroy();
+    movementStream.next([movement({ numeroFactura: 'after-destroy' })]);
+
+    expect(component.cambiosStock.map((item) => item.numeroFactura)).toEqual(['before-destroy']);
   });
 });
 

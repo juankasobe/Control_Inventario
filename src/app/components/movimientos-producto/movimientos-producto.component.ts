@@ -1,4 +1,5 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InventarioService } from '../../service/inventario.service';
 import { Inventario } from '../../interface/inventario';
 import { MovimientoStock } from '../../interface/movimientoStock';
@@ -32,17 +33,20 @@ export class MovimientosProductoComponent {
     });
   }
   private toastr: ToastrService = inject(ToastrService);
+  private readonly destroyRef = inject(DestroyRef);
 
   async getCambiosStock(id: string) {
-    (await this._inventarioService.getCambiosStockDeProductoOrdenados(id)).subscribe({
-      next: (data) => {
-        this.cambiosStock = data;
-        this.ajustarPaginaPorTotalMovimientos(this.cambiosStockFiltrados.length);
-      },
-      error: () => {
-        this.toastr.error('Error al obtener los productos');
-      },
-    });
+    (await this._inventarioService.getCambiosStockDeProductoOrdenados(id))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.cambiosStock = data;
+          this.ajustarPaginaPorTotalMovimientos(this.cambiosStockFiltrados.length);
+        },
+        error: () => {
+          this.toastr.error('Error al obtener los productos');
+        },
+      });
   }
 
   get cambiosStockFiltrados(): MovimientoStock[] {
