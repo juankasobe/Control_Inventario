@@ -42,9 +42,9 @@ Stacked-to-main: PR1 targets current `main`; each next PR branches from and targ
 
 ## Phase 3: Shell and Approved Identity UI
 
-- [ ] 3.1 RED: extend `src/app/app.component.spec.ts` and `src/app/components/navbar/navbar.component.spec.ts`; create `src/app/components/access-block/access-block.component.spec.ts`; cover Block non-approved access, Permit approved access, Existing approved route, revocation, approved label/“Approved”/UID reveal-copy, and fallback.
-- [ ] 3.2 GREEN: create `src/app/components/access-block/access-block.component.ts`, `src/app/components/access-block/access-block.component.html`, `src/app/components/access-block/access-block.component.css`; modify `src/app/app.component.ts`, `src/app/app.component.html`, `src/app/components/navbar/navbar.component.ts`, `src/app/components/navbar/navbar.component.html` to gate loading.
-- [ ] 3.3 REFACTOR: verify revocation teardown and approved navigation.
+- [x] 3.1 RED: extend `src/app/app.component.spec.ts` and `src/app/components/navbar/navbar.component.spec.ts`; create `src/app/components/access-block/access-block.component.spec.ts`; cover Block non-approved access, Permit approved access, Existing approved route, revocation, approved label/“Approved”/UID reveal-copy, and fallback.
+- [x] 3.2 GREEN: create `src/app/components/access-block/access-block.component.ts`, `src/app/components/access-block/access-block.component.html`, `src/app/components/access-block/access-block.component.css`; modify `src/app/app.component.ts`, `src/app/app.component.html`, `src/app/components/navbar/navbar.component.ts`, `src/app/components/navbar/navbar.component.html` to gate loading.
+- [x] 3.3 REFACTOR: verify revocation teardown and approved navigation.
 
 ## Phase 4: Inventory Compatibility and Teardown
 

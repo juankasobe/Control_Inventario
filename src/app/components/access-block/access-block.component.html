@@ -1,0 +1,18 @@
+<section data-testid="access-block" class="access-block" role="alert" aria-labelledby="access-block-title">
+  <p class="eyebrow">Seguridad de la instalación</p>
+  <h1 id="access-block-title">Acceso bloqueado</h1>
+  <p data-testid="access-status" class="access-status">Estado: {{ statusLabel }}</p>
+
+  <p *ngIf="accessState().label" data-testid="access-label">Dispositivo: {{ accessState().label }}</p>
+
+  <div *ngIf="accessState().uid; else uidUnavailable" class="uid-details">
+    <p>UID: <code data-testid="access-uid">{{ accessState().uid }}</code></p>
+    <button data-testid="copy-uid" type="button" (click)="copyUid()">Copiar UID</button>
+  </div>
+  <ng-template #uidUnavailable>
+    <p data-testid="uid-fallback">No se pudo obtener el UID todavía.</p>
+  </ng-template>
+
+  <p data-testid="access-instructions" class="access-instructions">{{ instructions }}</p>
+  <p *ngIf="copyMessage" data-testid="copy-status" role="status">{{ copyMessage }}</p>
+</section>
