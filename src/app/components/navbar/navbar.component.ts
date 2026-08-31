@@ -10,7 +10,6 @@ import { InstallationAccessService } from '../../service/installation-access.ser
 })
 export class NavbarComponent {
   menuMovilAbierto = false;
-  uidVisible = false;
   copyMessage = '';
   readonly accessState = inject(InstallationAccessService).accessState;
 
@@ -18,24 +17,19 @@ export class NavbarComponent {
     this.menuMovilAbierto = !this.menuMovilAbierto;
   }
 
-  revelarUid(): void {
-    this.uidVisible = true;
-  }
-
   async copiarUid(): Promise<void> {
     const state = this.accessState();
     if (state.status !== 'approved') return;
 
-    if (navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(state.uid);
-        this.copyMessage = 'UID copiado';
-        return;
-      } catch {
-        // Keep the UID visible so it can be copied manually.
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error('Clipboard API unavailable.');
       }
-    }
 
-    this.copyMessage = 'Copiá el UID manualmente.';
+      await navigator.clipboard.writeText(state.uid);
+      this.copyMessage = 'UID copiado.';
+    } catch {
+      this.copyMessage = 'No se pudo copiar el UID. Intentá nuevamente.';
+    }
   }
 }

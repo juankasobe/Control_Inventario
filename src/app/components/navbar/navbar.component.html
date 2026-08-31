@@ -8,21 +8,16 @@
     >
       <span
         class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-        >Variedades Zuny</span
+        >Control Inventario</span
       >
     </a>
     @if (accessState().status === 'approved') {
-      <div data-testid="approved-identity" class="approved-identity" aria-label="Approved installation">
-        <span>{{ accessState().label }}</span>
-        <strong>Approved</strong>
-        @if (uidVisible) {
-          <code data-testid="approved-uid">UID: {{ accessState().uid }}</code>
-          <button data-testid="copy-uid" type="button" (click)="copiarUid()">Copiar UID</button>
-        } @else {
-          <button data-testid="reveal-uid" type="button" (click)="revelarUid()">Ver UID</button>
-        }
+      <div data-testid="approved-identity" class="approved-identity" aria-label="Instalación aprobada">
+        <span data-testid="approved-label" class="approved-label">Dispositivo: {{ accessState().label }}</span>
+        <strong data-testid="approved-status" class="approved-status">Aprobado</strong>
+        <button data-testid="copy-uid" type="button" (click)="copiarUid()">Copiar UID</button>
         @if (copyMessage) {
-          <span data-testid="copy-status" role="status">{{ copyMessage }}</span>
+          <span data-testid="copy-status" role="status" aria-live="polite">{{ copyMessage }}</span>
         }
       </div>
     }

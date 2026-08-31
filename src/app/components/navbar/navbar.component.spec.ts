@@ -42,6 +42,12 @@ describe('NavbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('uses the exact product brand in the navbar', () => {
+    const brand = fixture.nativeElement.querySelector('nav a span') as HTMLElement;
+
+    expect(brand.textContent?.trim()).toBe('Control Inventario');
+  });
+
   it('keeps the mobile menu collapsed until the user opens it', () => {
     const toggle = fixture.nativeElement.querySelector('[data-testid="mobile-menu-toggle"]') as HTMLButtonElement;
     const menu = fixture.nativeElement.querySelector('[data-testid="mobile-menu"]') as HTMLElement;
@@ -69,42 +75,60 @@ describe('NavbarComponent', () => {
     expect(menu.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('shows the approved label and status', () => {
+  it('separates the approved identity label, status, and copy action without exposing the UID', () => {
     const identity = fixture.nativeElement.querySelector('[data-testid="approved-identity"]') as HTMLElement;
+    const label = identity.querySelector('[data-testid="approved-label"]') as HTMLElement;
+    const status = identity.querySelector('[data-testid="approved-status"]') as HTMLElement;
+    const copy = identity.querySelector('[data-testid="copy-uid"]') as HTMLButtonElement;
 
-    expect(identity.textContent).toContain('Oficina');
-    expect(identity.textContent).toContain('Approved');
+    expect(label.textContent?.trim()).toBe('Dispositivo: Oficina');
+    expect(status.textContent?.trim()).toBe('Aprobado');
+    expect(copy.textContent?.trim()).toBe('Copiar UID');
+    expect(identity.textContent).not.toContain('approved-installation');
+    expect(identity.querySelector('[data-testid="approved-uid"]')).toBeNull();
+    expect(identity.querySelector('[data-testid="reveal-uid"]')).toBeNull();
   });
 
-  it('reveals and copies the approved UID', async () => {
+  it('announces successful UID copying without rendering the UID', async () => {
     const writeText = jasmine.createSpy('writeText').and.returnValue(Promise.resolve());
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
-    const reveal = fixture.nativeElement.querySelector('[data-testid="reveal-uid"]') as HTMLButtonElement;
-
-    reveal.click();
-    fixture.detectChanges();
-    const uid = fixture.nativeElement.querySelector('[data-testid="approved-uid"]') as HTMLElement;
     const copy = fixture.nativeElement.querySelector('[data-testid="copy-uid"]') as HTMLButtonElement;
+
     copy.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(uid.textContent).toContain('approved-installation');
-    expect(writeText).toHaveBeenCalledWith('approved-installation');
-    expect(fixture.nativeElement.querySelector('[data-testid="copy-status"]').textContent).toContain('copiado');
+    expect(writeText).toHaveBeenCalledOnceWith('approved-installation');
+    expectCopyStatus(fixture.nativeElement, 'UID copiado.');
+    expect(fixture.nativeElement.textContent).not.toContain('approved-installation');
+    expect(fixture.nativeElement.querySelector('[data-testid="approved-uid"]')).toBeNull();
   });
 
-  it('keeps the UID available for manual copying when the clipboard is unavailable', async () => {
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
-    const reveal = fixture.nativeElement.querySelector('[data-testid="reveal-uid"]') as HTMLButtonElement;
+  it('announces rejection or unavailable clipboard without a visible UID fallback', async () => {
+    const writeText = jasmine.createSpy('writeText').and.returnValue(Promise.reject(new Error('denied')));
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const copy = fixture.nativeElement.querySelector('[data-testid="copy-uid"]') as HTMLButtonElement;
 
-    reveal.click();
-    fixture.detectChanges();
-    (fixture.nativeElement.querySelector('[data-testid="copy-uid"]') as HTMLButtonElement).click();
+    copy.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[data-testid="approved-uid"]').textContent).toContain('approved-installation');
-    expect(fixture.nativeElement.querySelector('[data-testid="copy-status"]').textContent).toContain('Copiá el UID manualmente');
+    expectCopyStatus(fixture.nativeElement, 'No se pudo copiar el UID. Intentá nuevamente.');
+
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+    copy.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expectCopyStatus(fixture.nativeElement, 'No se pudo copiar el UID. Intentá nuevamente.');
+    expect(fixture.nativeElement.textContent).not.toContain('approved-installation');
+    expect(fixture.nativeElement.querySelector('[data-testid="approved-uid"]')).toBeNull();
   });
 });
+
+function expectCopyStatus(block: HTMLElement, message: string): void {
+  const status = block.querySelector('[data-testid="copy-status"]') as HTMLElement;
+  expect(status.textContent?.trim()).toBe(message);
+  expect(status.getAttribute('role')).toBe('status');
+  expect(status.getAttribute('aria-live')).toBe('polite');
+}

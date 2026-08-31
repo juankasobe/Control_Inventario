@@ -24,45 +24,49 @@ describe('AccessBlockComponent', () => {
     return (block.querySelector(selector) as HTMLElement).textContent ?? '';
   }
 
-  it('shows a blocking status and instructions for every non-approved state', () => {
+  it('uses exact Spanish status labels for every access state', () => {
     const cases: Array<{ state: AccessState; status: string }> = [
-      { state: { status: 'initializing', uid: null, instructions: 'Verificando.' }, status: 'Verificando' },
+      { state: { status: 'initializing', uid: null, instructions: 'Verificando.' }, status: 'Verificando acceso' },
       { state: { status: 'pending', uid: 'pending-installation', instructions: 'Pendiente.' }, status: 'Pendiente' },
-      { state: { status: 'revoked', uid: 'revoked-installation', instructions: 'Revocado.' }, status: 'revocado' },
-      { state: { status: 'unavailable', uid: null, instructions: 'No disponible.', error: 'offline' }, status: 'no disponible' },
+      { state: { status: 'approved', uid: 'approved-installation', label: 'Oficina' }, status: 'Aprobado' },
+      { state: { status: 'revoked', uid: 'revoked-installation', instructions: 'Revocado.' }, status: 'Revocado' },
+      { state: { status: 'unavailable', uid: null, instructions: 'No disponible.', error: 'offline' }, status: 'Acceso no disponible' },
     ];
 
     for (const testCase of cases) {
       const block = render(testCase.state);
 
       expect(block.querySelector('[data-testid="access-block"]')).not.toBeNull();
-      expect(text(block, '[data-testid="access-status"]')).toContain(testCase.status);
-      expect(text(block, '[data-testid="access-instructions"]')).toContain('.');
+      expect(text(block, '[data-testid="access-status"]')).toBe(`Estado: ${testCase.status}`);
+      if (testCase.state.instructions) {
+        expect(text(block, '[data-testid="access-instructions"]')).toBe(testCase.state.instructions);
+      }
     }
   });
 
-  it('shows the device label, UID, and a copy action when identity is available', () => {
-    const block = render({
-      status: 'pending',
-      uid: 'pending-installation',
-      label: 'Caja principal',
-      instructions: 'Solicita aprobación.',
-    });
+  it('keeps identity private and offers copy only for handoff states', () => {
+    const cases: Array<{ state: AccessState; canCopy: boolean }> = [
+      { state: { status: 'initializing', uid: null, instructions: 'Verificando.' }, canCopy: false },
+      { state: { status: 'pending', uid: 'pending-installation', label: 'Caja principal', instructions: 'Solicita aprobación.' }, canCopy: true },
+      { state: { status: 'revoked', uid: 'revoked-installation', instructions: 'Contacta al administrador.' }, canCopy: true },
+      { state: { status: 'unavailable', uid: 'unavailable-installation', instructions: 'Reintentá.', error: 'offline' }, canCopy: true },
+    ];
 
-    expect(text(block, '[data-testid="access-label"]')).toContain('Caja principal');
-    expect(text(block, '[data-testid="access-uid"]')).toContain('pending-installation');
-    expect(block.querySelector('[data-testid="copy-uid"]')).not.toBeNull();
+    for (const testCase of cases) {
+      const block = render(testCase.state);
+
+      expect(Boolean(block.querySelector('[data-testid="copy-uid"]'))).toBe(testCase.canCopy);
+      if (testCase.state.uid) expect(block.textContent).not.toContain(testCase.state.uid);
+      expect(block.querySelector('[data-testid="access-uid"]')).toBeNull();
+      expect(block.querySelector('[data-testid="uid-fallback"]')).toBeNull();
+    }
+
+    expect(text(render(cases[1].state), '[data-testid="access-label"]')).toBe('Dispositivo: Caja principal');
   });
 
-  it('uses a safe fallback when no UID is available', () => {
-    const block = render({ status: 'initializing', uid: null });
-
-    expect(block.textContent).toContain('No se pudo obtener el UID todavía');
-    expect(block.querySelector('[data-testid="copy-uid"]')).toBeNull();
-  });
-
-  it('keeps the UID visible for manual copying when clipboard access fails', async () => {
-    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+  it('announces successful UID copying while keeping the UID hidden', async () => {
+    const writeText = jasmine.createSpy('writeText').and.returnValue(Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     const block = render({
       status: 'revoked',
       uid: 'revoked-installation',
@@ -73,7 +77,33 @@ describe('AccessBlockComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(text(block, '[data-testid="access-uid"]')).toContain('revoked-installation');
-    expect(text(block, '[data-testid="copy-status"]')).toContain('Copiá el UID manualmente');
+    expect(writeText).toHaveBeenCalledOnceWith('revoked-installation');
+    expectCopyStatus(block, 'UID copiado.');
+    expect(block.textContent).not.toContain('revoked-installation');
+  });
+
+  it('announces clipboard failure without revealing the UID', async () => {
+    const writeText = jasmine.createSpy('writeText').and.returnValue(Promise.reject(new Error('denied')));
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
+    const block = render({
+      status: 'pending',
+      uid: 'pending-installation',
+      instructions: 'Solicita aprobación.',
+    });
+
+    (block.querySelector('[data-testid="copy-uid"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expectCopyStatus(block, 'No se pudo copiar el UID. Intentá nuevamente.');
+    expect(block.textContent).not.toContain('pending-installation');
+    expect(block.querySelector('[data-testid="access-uid"]')).toBeNull();
   });
 });
+
+function expectCopyStatus(block: HTMLElement, message: string): void {
+  const status = block.querySelector('[data-testid="copy-status"]') as HTMLElement;
+  expect(status.textContent?.trim()).toBe(message);
+  expect(status.getAttribute('role')).toBe('status');
+  expect(status.getAttribute('aria-live')).toBe('polite');
+}
