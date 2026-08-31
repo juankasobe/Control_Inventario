@@ -17,13 +17,18 @@ export class AccessBlockComponent {
   get statusLabel(): string {
     const labels: Record<AccessState['status'], string> = {
       initializing: 'Verificando acceso',
-      pending: 'Pendiente de aprobación',
-      approved: 'Approved',
-      revoked: 'Acceso revocado',
+      pending: 'Pendiente',
+      approved: 'Aprobado',
+      revoked: 'Revocado',
       unavailable: 'Acceso no disponible',
     };
 
     return labels[this.accessState().status];
+  }
+
+  get canCopyUid(): boolean {
+    const state = this.accessState();
+    return Boolean(state.uid) && (state.status === 'pending' || state.status === 'revoked' || state.status === 'unavailable');
   }
 
   get instructions(): string {
@@ -32,18 +37,17 @@ export class AccessBlockComponent {
 
   async copyUid(): Promise<void> {
     const uid = this.accessState().uid;
-    if (!uid) return;
+    if (!uid || !this.canCopyUid) return;
 
-    if (navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(uid);
-        this.copyMessage = 'UID copiado';
-        return;
-      } catch {
-        // Keep the UID visible so it can be copied manually.
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error('Clipboard API unavailable.');
       }
-    }
 
-    this.copyMessage = 'Copiá el UID manualmente.';
+      await navigator.clipboard.writeText(uid);
+      this.copyMessage = 'UID copiado.';
+    } catch {
+      this.copyMessage = 'No se pudo copiar el UID. Intentá nuevamente.';
+    }
   }
 }

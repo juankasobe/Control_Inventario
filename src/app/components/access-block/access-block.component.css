@@ -1,13 +1,14 @@
-.access-block {
-  display: grid;
-  gap: 0.75rem;
-  margin: 3rem auto;
-  max-width: 42rem;
-  padding: 2rem;
+.access-block { background: #111827; border: 1px solid #334155; border-radius: 1rem; color: #e2e8f0; display: grid; gap: 0.75rem; margin: 3rem auto; max-width: 42rem; padding: 2rem; }
+.access-block h1, .access-block p { margin: 0; }
+.access-block h1, .access-status { color: #f8fafc; }
+.eyebrow { color: #93c5fd; }
+.access-label, .access-instructions { color: #cbd5e1; }
+.access-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+button { background: #1d4ed8; border: 1px solid #1e40af; border-radius: 0.5rem; color: #fff; cursor: pointer; font-weight: 700; padding: 0.5rem 0.75rem; }
+button:hover { background: #1e40af; }
+button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+[data-testid='copy-status'] { color: #86efac; font-weight: 700; }
+@media (max-width: 640px) {
+  .access-block { margin: 1.5rem 0.75rem; padding: 1.25rem; }
+  .access-actions button { width: 100%; }
 }
-
-.access-block h1,
-.access-block p { margin: 0; }
-.access-status { font-weight: 700; }
-.uid-details { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
-button { cursor: pointer; padding: 0.5rem 0.75rem; }

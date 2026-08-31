@@ -5,14 +5,10 @@
 
   <p *ngIf="accessState().label" data-testid="access-label">Dispositivo: {{ accessState().label }}</p>
 
-  <div *ngIf="accessState().uid; else uidUnavailable" class="uid-details">
-    <p>UID: <code data-testid="access-uid">{{ accessState().uid }}</code></p>
+  <div *ngIf="canCopyUid" class="access-actions">
     <button data-testid="copy-uid" type="button" (click)="copyUid()">Copiar UID</button>
   </div>
-  <ng-template #uidUnavailable>
-    <p data-testid="uid-fallback">No se pudo obtener el UID todavía.</p>
-  </ng-template>
 
   <p data-testid="access-instructions" class="access-instructions">{{ instructions }}</p>
-  <p *ngIf="copyMessage" data-testid="copy-status" role="status">{{ copyMessage }}</p>
+  <p *ngIf="copyMessage" data-testid="copy-status" role="status" aria-live="polite">{{ copyMessage }}</p>
 </section>

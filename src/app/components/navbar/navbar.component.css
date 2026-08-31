@@ -1,0 +1,8 @@
+.approved-identity { align-items: center; color: #1e293b; display: flex; flex-wrap: wrap; gap: 0.5rem; min-width: 0; }
+.approved-label { font-weight: 700; max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.approved-status { background: #dcfce7; border: 1px solid #86efac; border-radius: 999px; color: #166534; font-size: 0.75rem; padding: 0.25rem 0.65rem; }
+.approved-identity button { background: #1d4ed8; border: 1px solid #1e40af; border-radius: 0.5rem; color: #ffffff; cursor: pointer; font-weight: 700; padding: 0.45rem 0.7rem; }
+.approved-identity button:hover { background: #1e40af; }
+.approved-identity button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+[data-testid='copy-status'] { color: #166534; font-size: 0.85rem; font-weight: 700; }
+@media (max-width: 640px) { .approved-identity { order: 3; width: 100%; } [data-testid='copy-status'] { flex-basis: 100%; } }
