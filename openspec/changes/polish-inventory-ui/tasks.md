@@ -44,5 +44,5 @@ Chain strategy: pending
 ## Phase 5: Regression, Refactor, and Manual Proof
 
 - [x] 5.1 After each GREEN slice, run `npm test` for focused proof; after both pass, run the full `npm test`, then refactor only stale expectations/comments without changing behavior.
-- [ ] 5.2 In native Windows Electron, validate desktop and ≤640px branding/title, every access state, copy success/failure, menu wrapping, populated/empty/filtered movement, overflow, hover/focus, badge contrast, disabled pagination, and no persistent `Movimientos` active style/`aria-current`; do not use WSLg as visual proof.
+- [x] 5.2 In native Windows Electron, validate desktop and ≤640px branding/title, every access state, copy success/failure, menu wrapping, populated/empty/filtered movement, overflow, hover/focus, badge contrast, disabled pagination, and no persistent `Movimientos` active style/`aria-current`; do not use WSLg as visual proof.
 - [x] 5.3 Confirm `angular.json` and `package-lock.json` remain byte-for-byte untouched; perform no Firebase deployment or mutation.
