@@ -151,6 +151,69 @@ describe('MovimientosProductoComponent', () => {
     expect(badges.map((badge) => badge.textContent?.trim())).toEqual(['Entrada', 'Salida']);
   });
 
+  it('keeps populated and empty movement surfaces dark and readable', () => {
+    component.cambiosStock = [
+      movement({ tipo: 'entrada', numeroFactura: 'FAC-100', descripcion: 'Compra inicial' }),
+      movement({ tipo: 'salida', numeroFactura: 'FAC-200', descripcion: 'Venta mostrador' }),
+    ];
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const header = root.querySelector('.history-header') as HTMLElement;
+    const search = root.querySelector('.search-input') as HTMLInputElement;
+    const tableWrapper = root.querySelector('.movement-table-wrapper') as HTMLElement;
+    const table = root.querySelector('.movement-table') as HTMLTableElement;
+    const pagination = root.querySelector('.pagination-bar') as HTMLElement;
+    const badges = Array.from<HTMLElement>(root.querySelectorAll('[data-testid="movement-type-badge"]'));
+
+    expect(getComputedStyle(header).backgroundColor).toBe('rgb(17, 24, 39)');
+    expect(getComputedStyle(search).backgroundColor).toBe('rgb(30, 41, 59)');
+    expect(getComputedStyle(tableWrapper).backgroundColor).toBe('rgb(17, 24, 39)');
+    expect(getComputedStyle(table.querySelector('thead th') as HTMLElement).backgroundColor).toBe('rgb(30, 41, 59)');
+    expect(getComputedStyle(pagination).backgroundColor).toBe('rgb(17, 24, 39)');
+    expect(table.querySelectorAll('th[scope="col"]').length).toBe(6);
+    expect(table.textContent).toContain('Compra inicial');
+    expect(getComputedStyle(badges[0]).backgroundColor).toBe('rgb(20, 83, 45)');
+    expect(getComputedStyle(badges[1]).backgroundColor).toBe('rgb(127, 29, 29)');
+
+    component.cambiosStock = [];
+    fixture.detectChanges();
+
+    const empty = root.querySelector('[data-testid="movements-empty"]') as HTMLElement;
+    expect(empty.textContent?.trim()).toBe('Todavía no hay movimientos registrados para este producto.');
+    expect(getComputedStyle(empty).backgroundColor).toBe('rgb(17, 24, 39)');
+    expect(getComputedStyle(empty).color).toBe('rgb(203, 213, 225)');
+  });
+
+  it('keeps keyboard focus visible and disabled pagination distinguishable', () => {
+    component.cambiosStock = Array.from({ length: 11 }, (_, index) => movement({ numeroFactura: `FAC-${index}` }));
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const search = root.querySelector('.search-input') as HTMLInputElement;
+    const buttons = Array.from<HTMLButtonElement>(root.querySelectorAll('.pagination-bar button'));
+
+    search.focus();
+    expect(getComputedStyle(search).outlineStyle).toBe('solid');
+    expect(buttons[0].disabled).toBeTrue();
+    expect(buttons[1].disabled).toBeFalse();
+    expect(getComputedStyle(buttons[0]).backgroundColor).toBe('rgb(30, 41, 59)');
+    expect(getComputedStyle(buttons[0]).opacity).toBe('1');
+
+    buttons[1].focus();
+    expect(getComputedStyle(buttons[1]).outlineStyle).toBe('solid');
+  });
+
+  it('retains overflow and wrapping contracts for narrow layouts', () => {
+    component.cambiosStock = [movement({ numeroFactura: 'FAC-100' })];
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(getComputedStyle(root.querySelector('.movement-table-wrapper') as HTMLElement).overflowX).toBe('auto');
+    expect(getComputedStyle(root.querySelector('.history-header') as HTMLElement).flexWrap).toBe('wrap');
+    expect(getComputedStyle(root.querySelector('.pagination-bar') as HTMLElement).display).toBe('flex');
+  });
+
   it('renders a return affordance back to the product list workflow', () => {
     fixture.detectChanges();
 

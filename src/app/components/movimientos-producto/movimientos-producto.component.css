@@ -148,3 +148,29 @@
     flex-direction: column;
   }
 }
+
+.movement-history { background: #0f172a; color: #e2e8f0; }
+.movement-history .back-link { color: #93c5fd; }
+.movement-history .back-link:focus { outline: 3px solid #60a5fa; outline-offset: 2px; }
+.movement-history .history-header { background: #111827; border-color: #334155; flex-wrap: wrap; }
+.movement-history .history-header h1 { color: #f8fafc; }
+.movement-history .eyebrow, .movement-history .history-summary, .movement-history .product-id { color: #94a3b8; }
+.movement-history .product-id { background: #1e293b; border: 1px solid #475569; }
+.movement-history .search-label { color: #e2e8f0; }
+.movement-history .search-input { background: #1e293b; border-color: #475569; color: #f8fafc; }
+.movement-history .search-input::placeholder { color: #94a3b8; }
+.movement-history .search-input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgb(96 165 250 / 0.25); outline: 3px solid #60a5fa; outline-offset: 2px; }
+.movement-history .empty-state { background: #111827; border-color: #475569; color: #cbd5e1; }
+.movement-history .movement-table-wrapper { background: #111827; border-color: #334155; }
+.movement-history .movement-table { color: #cbd5e1; }
+.movement-history .movement-table th, .movement-history .movement-table td { border-color: #334155; }
+.movement-history .movement-table th { background: #1e293b; color: #e2e8f0; }
+.movement-history .movement-table tbody { background: #111827; }
+.movement-history .movement-table tbody tr:hover { background: #1e293b; }
+.movement-history .movement-badge--entrada { background: #14532d; border: 1px solid #22c55e; color: #bbf7d0; }
+.movement-history .movement-badge--salida { background: #7f1d1d; border: 1px solid #ef4444; color: #fecaca; }
+.movement-history .pagination-bar { background: #111827; border: 1px solid #334155; color: #cbd5e1; }
+.movement-history .pagination-bar button { background: #334155; border: 1px solid #475569; color: #f8fafc; }
+.movement-history .pagination-bar button:hover:not(:disabled) { background: #2563eb; border-color: #3b82f6; }
+.movement-history .pagination-bar button:focus { outline: 3px solid #60a5fa; outline-offset: 2px; }
+.movement-history .pagination-bar button:disabled { background: #1e293b; border-color: #334155; color: #94a3b8; opacity: 1; }
